@@ -1,0 +1,41 @@
+version: 2.1
+
+executors:
+  win-exe-builder:
+    machine:
+      image: "windows-server-2022-gui:current"
+    resource_class: windows.medium
+    shell: powershell.exe
+
+jobs:
+  build-exe:
+    executor: win-exe-builder
+    steps:
+      - checkout
+      - run:
+          name: Install Python 3.11
+          command: |
+            choco install python311 -y --no-progress
+            python -m pip install --upgrade pip
+      - run:
+          name: Install dependencies
+          command: |
+            pip install -r requirements.txt
+            pip install pyinstaller
+      - run:
+          name: Build Accessories_order_history_scraper.exe
+          command: >
+            pyinstaller --onefile --windowed --clean
+            --name "Accessories_order_history_scraper"
+            --icon "GFH_Telecom_TBLogo.ico"
+            --hidden-import win32gui --hidden-import win32con
+            --hidden-import win32api --hidden-import win32process
+            "Accessories_order_history_scraper.pyw"
+      - store_artifacts:
+          path: dist
+          destination: exe
+
+workflows:
+  build:
+    jobs:
+      - build-exe
