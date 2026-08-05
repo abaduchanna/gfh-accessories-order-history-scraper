@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.DS_Store
+Thumbs.db
+*.tmp
+*.spec
+.vscode/
+.idea/
