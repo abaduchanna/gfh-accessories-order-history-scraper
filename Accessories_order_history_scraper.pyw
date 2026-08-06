@@ -25,6 +25,14 @@ def _pkg_version(dist):
     except Exception:
         return None
 def _ensure(pip_name, imp_name):
+    # In a frozen PyInstaller --onefile EXE, sys.executable IS the EXE itself.
+    # Running `exe -m pip install ...` would re-launch the whole app instead of
+    # installing, so if any bundled dependency fails to import at startup it
+    # recursively spawns more EXE processes -> flooding Task Manager. When
+    # frozen, dependencies are already bundled by PyInstaller, so never attempt
+    # a pip install / subprocess spawn at all.
+    if getattr(sys, "frozen", False):
+        return
     if _pkg_version(pip_name) is not None:
         return
     try:
@@ -94,9 +102,15 @@ download_dir = downloads_folder
 
 
 def get_script_dir():
-    return (os.path.dirname(sys.executable)
-            if getattr(sys, "frozen", False)
-            else os.path.dirname(os.path.abspath(__file__)))
+    # In a frozen PyInstaller --onefile EXE, bundled data files (header logo,
+    # window icon) are extracted to sys._MEIPASS, NOT saved next to the
+    # executable. Resolve there first so the header logo actually loads.
+    if getattr(sys, "frozen", False):
+        meipass = getattr(sys, "_MEIPASS", None)
+        if meipass and meipass.strip():
+            return meipass
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
 
 
 # ============================================================================
