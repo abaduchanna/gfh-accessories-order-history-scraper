@@ -8,6 +8,5 @@ dist/
 .DS_Store
 Thumbs.db
 *.tmp
-*.spec
 .vscode/
 .idea/
