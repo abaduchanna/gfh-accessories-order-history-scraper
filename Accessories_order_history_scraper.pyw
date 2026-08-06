@@ -68,6 +68,7 @@ from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 import tkinter as tk
+from theme_manager import ThemeManager, apply_theme_to_window, get_copyright_year
 from tkinter import ttk, scrolledtext, messagebox, filedialog
 
 # ============================================================================
@@ -84,7 +85,7 @@ COLOR_WHITE = "#ffffff"
 COLOR_TEXT = "#1c1c1c"
 COLOR_LOG_BG = "#0d0d1f"
 COLOR_LOG_TEXT = "#d7e3f0"
-COPYRIGHT_TEXT = "Created by Abad Umair Channa  |  Copyright © 2026  |  All rights reserved."
+COPYRIGHT_TEXT = "Developed by Abad Umair Channa  |  Copyright © 2026  |  All rights reserved."
 
 ICON_ICO_NAME = "GFH_Telecom_TBLogo.ico"     # used for taskbar + titlebar (Windows .ico)
 WORDMARK_PNG_NAME = "GFH_Telecom_Logo.png"     # used in the header (resized at runtime via PIL)
