@@ -28,6 +28,8 @@ jobs:
             pyinstaller --onefile --windowed --clean
             --name "Accessories_order_history_scraper"
             --icon "GFH_Telecom_TBLogo.ico"
+            --add-data "GFH_Telecom_Logo.png;."
+            --add-data "GFH_Telecom_TBLogo.ico;."
             --hidden-import win32gui --hidden-import win32con
             --hidden-import win32api --hidden-import win32process
             "Accessories_order_history_scraper.pyw"
