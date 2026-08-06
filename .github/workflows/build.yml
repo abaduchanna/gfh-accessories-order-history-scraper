@@ -1,41 +1,49 @@
-name: Build Accessories_order_history_scraper EXE
+name: Build Windows .exe
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches: [ main, master, develop ]
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   build:
     runs-on: windows-latest
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
-      - name: Build Accessories_order_history_scraper.exe
-        run: >
-          pyinstaller --onefile --windowed --clean
-          --name "Accessories_order_history_scraper"
-          --icon "GFH_Telecom_TBLogo.ico"
-          --add-data "GFH_Telecom_Logo.png;."
-          --add-data "GFH_Telecom_TBLogo.ico;."
-          --hidden-import win32gui --hidden-import win32con
-          --hidden-import win32api --hidden-import win32process
-          "Accessories_order_history_scraper.pyw"
-      - name: Upload exe directly to release (no Actions storage used)
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: build-${{ github.run_number }}
-          name: Build ${{ github.run_number }}
-          files: dist/Accessories_order_history_scraper.exe
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+    
+    - name: Build executable
+      run: |
+        pyinstaller Accessories_order_history_scraper.spec
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Gfh Accessories Order History Scraper-windows-exe
+        path: dist/
+        retention-days: 30
+    
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*.exe
+      env:
+        GITHUB_TOKEN: ${ secrets.GITHUB_TOKEN }
