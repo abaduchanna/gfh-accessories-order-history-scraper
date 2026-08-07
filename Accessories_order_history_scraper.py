@@ -68,7 +68,7 @@ from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 import tkinter as tk
-from theme_manager import ThemeManager, apply_theme_to_window, get_copyright_year
+from theme_manager import ThemeManager, apply_theme_to_window, get_copyright_year, create_theme_toggle_button
 from tkinter import ttk, scrolledtext, messagebox, filedialog
 
 # ============================================================================
@@ -85,7 +85,7 @@ COLOR_WHITE = "#ffffff"
 COLOR_TEXT = "#1c1c1c"
 COLOR_LOG_BG = "#0d0d1f"
 COLOR_LOG_TEXT = "#d7e3f0"
-COPYRIGHT_TEXT = "Developed by Abad Umair Channa  |  Copyright © 2026  |  All rights reserved."
+COPYRIGHT_TEXT = f"Developed by Abad Umair Channa  |  Copyright © {get_copyright_year()}  |  All rights reserved."
 
 ICON_ICO_NAME = "GFH_Telecom_TBLogo.ico"     # used for taskbar + titlebar (Windows .ico)
 WORDMARK_PNG_NAME = "GFH_Telecom_Logo.png"     # used in the header (resized at runtime via PIL)
@@ -997,10 +997,12 @@ class ScraperApp:
         root.configure(bg=COLOR_BG)
         self._set_window_icon(root)
 
+        self.theme_manager = ThemeManager("GFH Accessories Order History Scraper")
         self._build_header()
         self._build_body()
         self._build_log_area()
         self._build_copyright_bar()
+        apply_theme_to_window(self.root, self.theme_manager)
 
         self._poll_queue()
         root.protocol("WM_DELETE_WINDOW", self._on_close)
@@ -1065,11 +1067,13 @@ class ScraperApp:
         header = tk.Frame(self.root, bg=COLOR_NAVY, height=90)
         header.pack(fill="x", side="top")
         header.pack_propagate(False)
+        header._tag = "header"
 
         # ── Logo (PNG) pinned to the TOP-LEFT, resized at runtime via PIL ──
         wordmark_path = os.path.join(get_script_dir(), WORDMARK_PNG_NAME)
         logo_holder = tk.Frame(header, bg=COLOR_NAVY)
         logo_holder.pack(side="left", padx=(24, 16), pady=14)
+        logo_holder._tag = "header"
 
         if os.path.exists(wordmark_path):
             try:
@@ -1101,8 +1105,10 @@ class ScraperApp:
                 font=("Segoe UI", 22, "bold"), width=2, highlightthickness=3,
                 highlightbackground=COLOR_RED, highlightcolor=COLOR_RED,
             )
+            badge._tag = "header_label"
             badge.pack(side="left", padx=(0, 8))
             word_frame = tk.Frame(logo_holder, bg=COLOR_NAVY)
+            word_frame._tag = "header"
             word_frame.pack(side="left")
             tk.Label(word_frame, text="GFH", bg=COLOR_NAVY, fg=COLOR_RED,
                      font=("Segoe UI", 15, "bold")).pack(anchor="w")
@@ -1111,6 +1117,7 @@ class ScraperApp:
 
         # ── Title text to the RIGHT of the logo ──────────────────────────
         title_frame = tk.Frame(header, bg=COLOR_NAVY)
+        title_frame._tag = "header"
         title_frame.pack(side="left", padx=(0, 24), pady=14)
         tk.Label(
             title_frame, text="Accessories Order History Scraper", bg=COLOR_NAVY, fg=COLOR_WHITE,
@@ -1120,6 +1127,12 @@ class ScraperApp:
             title_frame, text="CPWH Wireless portal → order history export (URL columns removed)",
             bg=COLOR_NAVY, fg="#c7c7dd", font=("Segoe UI", 9),
         ).pack(anchor="w")
+
+        theme_btn = create_theme_toggle_button(header, self.theme_manager)
+        theme_btn.pack(side="right", padx=16)
+
+    def _apply_theme(self, colors=None):
+        apply_theme_to_window(self.root, self.theme_manager)
 
     def _build_body(self):
         body = tk.Frame(self.root, bg=COLOR_BG)
@@ -1219,6 +1232,7 @@ class ScraperApp:
 
     def _build_copyright_bar(self):
         bar = tk.Frame(self.root, bg=COLOR_NAVY, height=26)
+        bar._tag = "header"
         bar.pack(fill="x", side="bottom")
         bar.pack_propagate(False)
         tk.Label(bar, text=COPYRIGHT_TEXT, bg=COLOR_NAVY, fg="#9d9db8",
