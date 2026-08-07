@@ -262,13 +262,12 @@ def apply_theme_to_window(root, theme_manager, refresh_callback=None):
                 for child in widget.winfo_children():
                     _walk(child, c)
                 return
-            # Logo label (displays an image) → sync bg with parent, don't touch fg
+            # Logo label (displays an image) → leave it alone entirely.
+            # The app already set the correct bg (e.g. bg=APP_NAVY or
+            # bg=BRAND_NAVY) to match the header. Touching it risks
+            # breaking the blend, especially when the parent is a ttk.Frame
+            # whose cget("bg") doesn't work.
             if tag == "logo" or (isinstance(widget, tk.Label) and _widget_has_image(widget)):
-                try:
-                    parent_bg = widget.master.cget("bg") if widget.master else c["navy"]
-                    widget.configure(bg=parent_bg)
-                except Exception:
-                    pass
                 for child in widget.winfo_children():
                     _walk(child, c)
                 return
