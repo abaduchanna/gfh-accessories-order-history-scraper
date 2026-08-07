@@ -3,6 +3,8 @@ name: Build Windows .exe
 on:
   push:
     branches: [ main, master, develop ]
+    tags:
+      - 'build-*'
     paths:
       - '**.py'
       - 'requirements.txt'
