@@ -13,12 +13,6 @@ from datetime import datetime
 import platform
 
 
-# Tags that mark widgets whose colors must NOT be touched by the theme walker.
-# These are brand/header/logo widgets that have a fixed palette regardless of
-# the active light/dark theme.
-_PROTECTED_TAGS = {"header", "header_label", "brand", "logo", "run"}
-
-
 class ThemeManager:
     """Manages Light/Dark themes with persistent storage."""
 
@@ -59,10 +53,10 @@ class ThemeManager:
         """Get platform-specific config directory."""
         if platform.system() == "Windows":
             base = Path(os.getenv("APPDATA", "~")).expanduser()
-            config_dir = base / "GFH Telecom" / self.app_name
+            config_dir = base / "3S Verse" / self.app_name
         else:
             base = Path.home() / ".config"
-            config_dir = base / "gfh-telecom" / self.app_name
+            config_dir = base / "3s-verse" / self.app_name
 
         try:
             config_dir.mkdir(parents=True, exist_ok=True)
@@ -114,7 +108,7 @@ class ThemeManager:
     @staticmethod
     def get_copyright_text():
         """Get formatted copyright text with dynamic year."""
-        return f"\u00a9 {ThemeManager.get_copyright_year()} Developed by Abad Umair Channa"
+        return f"© {ThemeManager.get_copyright_year()} Developed by Abad Umair Channa"
 
 
 def get_copyright_year():
@@ -124,38 +118,14 @@ def get_copyright_year():
 
 def get_copyright_text():
     """Module-level formatted copyright text with dynamic year."""
-    return f"\u00a9 {get_copyright_year()} Developed by Abad Umair Channa"
-
-
-def _widget_has_image(widget):
-    """Return True if a tk.Label is currently displaying a PhotoImage."""
-    try:
-        img = widget.cget("image")
-        return bool(img) and str(img) != ""
-    except Exception:
-        return False
-
-
-def _widget_is_protected(widget):
-    """A widget is protected from theme recoloring if it is tagged as a
-    brand/header/logo element OR if it is a Label that currently displays an
-    image (so the logo's parent-bg blending is never clobbered)."""
-    tag = getattr(widget, "_tag", None)
-    if tag in _PROTECTED_TAGS:
-        return True
-    if isinstance(widget, tk.Label) and _widget_has_image(widget):
-        return True
-    return False
+    return f"© {get_copyright_year()} Developed by Abad Umair Channa"
 
 
 def apply_theme_to_window(root, theme_manager, refresh_callback=None):
     """Apply theme colors to the root window and configure ttk styles.
 
-    Walks the widget tree and recolors plain tk widgets so the whole window
-    reflects the selected light/dark theme. Widgets tagged as header / logo /
-    brand, or labels that display a logo image, are preserved (their bg is
-    kept in sync with the parent rather than overwritten with the body bg).
-    Returns the colors dict.
+    Also walks the widget tree and recolors plain tk widgets so the whole
+    window reflects the selected light/dark theme. Returns the colors dict.
     """
     colors = theme_manager.get_colors()
 
@@ -199,9 +169,21 @@ def apply_theme_to_window(root, theme_manager, refresh_callback=None):
             pass
         _walk(root, colors)
 
-    def _recolor(widget, c):
-        """Recolor a single non-protected widget to match the theme."""
+    def _walk(widget, c):
+        tag = getattr(widget, "_tag", None)
         try:
+            if tag in ("header", "header_label", "brand"):
+                # Keep the brand navy header fixed across themes.
+                if isinstance(widget, tk.Label):
+                    widget.configure(bg="#090d26", fg="#ffffff")
+                else:
+                    widget.configure(bg="#090d26")
+                return
+            if tag == "run":
+                widget.configure(bg="#e8212a", fg="#ffffff",
+                                 activebackground="#c01820",
+                                 activeforeground="#ffffff")
+                return
             if isinstance(widget, tk.Button):
                 widget.configure(
                     bg=c["button_bg"],
@@ -238,39 +220,6 @@ def apply_theme_to_window(root, theme_manager, refresh_callback=None):
                 widget.configure(bg=c["entry_bg"], fg=c["entry_fg"])
         except Exception:
             pass
-
-    def _walk(widget, c):
-        # Protected widgets (header / logo / brand / image labels) keep their
-        # palette — but if it's a label holding a logo image, refresh its bg
-        # from the parent so it stays visually blended after a theme change.
-        if _widget_is_protected(widget):
-            tag = getattr(widget, "_tag", None)
-            if tag in ("header", "header_label", "brand"):
-                try:
-                    if isinstance(widget, tk.Label):
-                        widget.configure(bg="#090d26", fg="#ffffff")
-                    else:
-                        widget.configure(bg="#090d26")
-                except Exception:
-                    pass
-            elif tag == "logo" or (isinstance(widget, tk.Label) and _widget_has_image(widget)):
-                try:
-                    parent_bg = widget.master.cget("bg") if widget.master else "#090d26"
-                    widget.configure(bg=parent_bg)
-                except Exception:
-                    pass
-            # Recurse into children even if this widget is protected (so a
-            # header Frame's children that ARE themeable still get recolored
-            # — but logo labels inside the header will themselves be protected
-            # and skipped here).
-            try:
-                for child in widget.winfo_children():
-                    _walk(child, c)
-            except Exception:
-                pass
-            return
-
-        _recolor(widget, c)
         try:
             for child in widget.winfo_children():
                 _walk(child, c)
@@ -290,21 +239,13 @@ def create_theme_toggle_button(parent, theme_manager, on_toggle=None):
     """Create a one-click theme toggle button.
 
     Clicking it toggles the persisted theme and re-applies it to the window
-    via ``apply_theme_to_window`` when ``parent`` is a Tk/Toplevel root. The
-    button label is refreshed on every click so it always reads the correct
-    next state ("Switch to Light" / "Switch to Dark").
+    via ``apply_theme_to_window`` when ``parent`` is a Tk/Toplevel root.
     """
     def toggle():
         new_theme = theme_manager.toggle_theme()
         try:
             root = parent.winfo_toplevel()
             apply_theme_to_window(root, theme_manager)
-        except Exception:
-            pass
-        # Refresh the button's own label & colors to match the new theme.
-        try:
-            btn_text = "Switch to Light" if theme_manager.current_theme == "dark" else "Switch to Dark"
-            btn.configure(text=btn_text, bg=theme_manager.get_colors()["accent"])
         except Exception:
             pass
         if on_toggle:
