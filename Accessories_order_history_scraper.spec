@@ -3,7 +3,7 @@ import datetime as _dt
 _year = _dt.date.today().year
 
 SPEC_DOC = f"""PyInstaller spec
-Developed by Abad Umair Channa © {_year}
+Developed by Abad Umair Channa \u00a9 {_year}
 Build command: pyinstaller Accessories_order_history_scraper.spec
 """
 
@@ -14,7 +14,10 @@ a = Analysis(
     ['Accessories_order_history_scraper.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('GFH_Telecom_TBLogo.ico', '.'),
+        ('GFH_Telecom_Logo.png', '.'),
+    ],
     hiddenimports=[
         'tkinter',
         'selenium',
@@ -26,6 +29,7 @@ a = Analysis(
         'pyperclip',
         'requests',
         'theme_manager',
+        'logo_handler',
         'PIL',
         'pandas',
         'gspread',
@@ -63,4 +67,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='GFH_Telecom_TBLogo.ico',
 )
