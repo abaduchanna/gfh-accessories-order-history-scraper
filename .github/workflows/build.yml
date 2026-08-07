@@ -3,8 +3,6 @@ name: Build Windows .exe
 on:
   push:
     branches: [ main, master, develop ]
-    tags:
-      - 'build-*'
     paths:
       - '**.py'
       - 'requirements.txt'
@@ -13,38 +11,35 @@ on:
     branches: [ main, master, develop ]
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
+    - uses: actions/checkout@v3
+
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
         pip install -r requirements.txt
-    
+
     - name: Build executable
       run: |
         pyinstaller Accessories_order_history_scraper.spec
-    
+
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
-        name: Gfh Accessories Order History Scraper-windows-exe
+        name: gfh_accessories_order_history_scraper-windows-exe
         path: dist/
         retention-days: 30
-    
+
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
