@@ -9,14 +9,14 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     - run: pip install --upgrade pip pyinstaller
     - run: pip install -r requirements.txt
     - run: pyinstaller *.spec
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: exe
         path: dist/
