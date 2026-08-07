@@ -15,7 +15,11 @@ jobs:
         python-version: '3.11'
     - run: python -m pip install --upgrade pip pyinstaller
     - run: python -m pip install -r requirements.txt
-    - run: pyinstaller *.spec
+    # Use bash (Git Bash on Windows runners) so *.spec is glob-expanded.
+    # PowerShell passes the literal "*.spec" to pyinstaller, which then
+    # tries to mkdir build\* and crashes with WinError 123.
+    - run: for spec in *.spec; do pyinstaller "$spec"; done
+      shell: bash
     - uses: actions/upload-artifact@v4
       with:
         name: exe
