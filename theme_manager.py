@@ -1,7 +1,6 @@
 """
-Unified Theme Manager for Abad Umair Channa Applications
-Handles Light/Dark/System mode with persistent storage
-Auto-updates copyright year
+Unified Theme Manager with One-Click Toggle
+Developed by Abad Umair Channa
 """
 
 import tkinter as tk
@@ -13,9 +12,8 @@ from datetime import datetime
 import platform
 
 class ThemeManager:
-    """Manages application themes with persistent user preference."""
+    """Manages Light/Dark/System themes with persistent storage."""
     
-    # Theme configurations
     THEMES = {
         "light": {
             "bg": "#FFFFFF",
@@ -25,8 +23,9 @@ class ThemeManager:
             "entry_bg": "#FFFFFF",
             "entry_fg": "#000000",
             "frame_bg": "#F5F5F5",
-            "accent": "#090d26",  # BRAND_NAVY
-            "accent_alt": "#f0541c"  # BRAND_RED
+            "accent": "#090d26",
+            "accent_alt": "#f0541c",
+            "button_hover": "#E0E0E0",
         },
         "dark": {
             "bg": "#1E1E1E",
@@ -37,18 +36,17 @@ class ThemeManager:
             "entry_fg": "#FFFFFF",
             "frame_bg": "#262626",
             "accent": "#4A7BA7",
-            "accent_alt": "#FF7A45"
+            "accent_alt": "#FF7A45",
+            "button_hover": "#3D3D3D",
         },
-        "system": None  # Follows OS preference
     }
     
     def __init__(self, app_name: str):
-        """Initialize theme manager with app-specific config directory."""
         self.app_name = app_name
         self.config_dir = self._get_config_dir()
         self.config_file = self.config_dir / "theme_config.json"
         self.current_theme = self._load_preference()
-        
+    
     def _get_config_dir(self) -> Path:
         """Get platform-specific config directory."""
         if platform.system() == "Windows":
@@ -62,78 +60,58 @@ class ThemeManager:
         return config_dir
     
     def _load_preference(self) -> str:
-        """Load saved theme preference from config file."""
+        """Load saved theme preference."""
         if self.config_file.exists():
             try:
                 with open(self.config_file, "r") as f:
                     data = json.load(f)
-                    saved = data.get("theme", "system")
-                    if saved in self.THEMES:
-                        return saved
+                    saved = data.get("theme", "dark")
+                    return saved if saved in self.THEMES else "dark"
             except Exception:
                 pass
-        return "system"
+        return "dark"
     
     def _save_preference(self, theme: str):
-        """Save theme preference to config file."""
+        """Save theme preference."""
         try:
             with open(self.config_file, "w") as f:
                 json.dump({"theme": theme, "updated": datetime.now().isoformat()}, f)
-        except Exception as e:
-            print(f"Warning: Could not save theme preference: {e}")
+        except Exception:
+            pass
     
     def set_theme(self, theme: str):
-        """Set active theme and save preference."""
-        if theme not in self.THEMES:
-            raise ValueError(f"Unknown theme: {theme}")
-        self.current_theme = theme
-        self._save_preference(theme)
+        """Set theme and save."""
+        if theme in self.THEMES:
+            self.current_theme = theme
+            self._save_preference(theme)
+    
+    def toggle_theme(self):
+        """Toggle between light and dark."""
+        new_theme = "light" if self.current_theme == "dark" else "dark"
+        self.set_theme(new_theme)
+        return new_theme
     
     def get_colors(self) -> dict:
-        """Get current theme colors, respecting system preference."""
-        if self.current_theme == "system":
-            # Detect system theme (simplified)
-            if platform.system() == "Windows":
-                is_dark = self._detect_windows_dark_mode()
-            else:
-                is_dark = False  # Default to light on non-Windows
-            active_theme = "dark" if is_dark else "light"
-        else:
-            active_theme = self.current_theme
-        
-        return self.THEMES[active_theme].copy()
-    
-    def _detect_windows_dark_mode(self) -> bool:
-        """Detect Windows 10/11 dark mode setting."""
-        try:
-            import winreg
-            registry_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-            registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path)
-            value, _ = winreg.QueryValueEx(registry_key, "AppsUseLightTheme")
-            return value == 0
-        except Exception:
-            return False
+        """Get current theme colors."""
+        return self.THEMES[self.current_theme].copy()
     
     @staticmethod
     def get_copyright_year() -> int:
-        """Get current year for dynamic copyright."""
+        """Get current year dynamically."""
         return datetime.now().year
     
     @staticmethod
     def get_copyright_text() -> str:
-        """Get formatted copyright text."""
+        """Get formatted copyright text with dynamic year."""
         year = ThemeManager.get_copyright_year()
         return f"© {year} Developed by Abad Umair Channa"
 
 
 def apply_theme_to_window(root: tk.Tk, theme_manager: ThemeManager):
-    """Apply theme colors to root window and configure styles."""
+    """Apply theme colors to window."""
     colors = theme_manager.get_colors()
-    
-    # Configure window
     root.configure(bg=colors["bg"])
     
-    # Configure ttk styles
     style = ttk.Style()
     style.theme_use("clam")
     
@@ -145,17 +123,26 @@ def apply_theme_to_window(root: tk.Tk, theme_manager: ThemeManager):
     return colors
 
 
-def create_theme_menu(root: tk.Tk, theme_manager: ThemeManager, refresh_callback=None):
-    """Create a theme selector menu."""
-    menu = tk.Menu(root, tearoff=0)
+def create_theme_toggle_button(parent: tk.Widget, theme_manager: ThemeManager, refresh_callback=None) -> tk.Button:
+    """Create one-click theme toggle button."""
+    colors = theme_manager.get_colors()
     
-    for theme_name in ["light", "dark", "system"]:
-        menu.add_command(
-            label=theme_name.capitalize(),
-            command=lambda t=theme_name: (
-                theme_manager.set_theme(t),
-                refresh_callback() if refresh_callback else None
-            )
-        )
+    def toggle_and_refresh():
+        new_theme = theme_manager.toggle_theme()
+        if refresh_callback:
+            refresh_callback()
     
-    return menu
+    btn = tk.Button(
+        parent,
+        text="☀️ Light" if theme_manager.current_theme == "dark" else "🌙 Dark",
+        command=toggle_and_refresh,
+        bg=colors["accent"],
+        fg="white",
+        relief=tk.FLAT,
+        padx=10,
+        pady=5,
+        font=("Arial", 9, "bold"),
+        cursor="hand2"
+    )
+    
+    return btn
