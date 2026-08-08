@@ -1145,7 +1145,7 @@ class ScraperApp:
             bg=COLOR_NAVY, fg="#c7c7dd", font=("Segoe UI", 9),
         ).pack(anchor="w")
 
-        theme_btn = create_theme_toggle_button(header, self.theme_manager)
+        theme_btn = create_theme_toggle_button(header, self.theme_manager, on_toggle=self._apply_theme)
         theme_btn.pack(side="right", padx=16)
 
     def _apply_theme(self, colors=None):
