@@ -1050,14 +1050,14 @@ class ScraperApp:
             pass
 
 
-    # Brute-force taskbar icon: set AppUserModelID so Windows taskbar
-    # shows our icon instead of the generic Python/PyInstaller icon
-    try:
-        import ctypes
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-            "GFHTelecom.App")
-    except Exception:
-        pass
+        # Brute-force taskbar icon: set AppUserModelID so Windows taskbar
+        # shows our icon instead of the generic Python/PyInstaller icon
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                "GFHTelecom.App")
+        except Exception:
+            pass
 
     def _set_window_icon(self, root):
         """Set the window icon from the embedded .ico (base64), falling back
