@@ -76,8 +76,8 @@ from tkinter import ttk, scrolledtext, messagebox, filedialog
 # ============================================================================
 APP_TITLE = "GFH Telecom — Accessories Order History Scraper"
 
-COLOR_NAVY = "#161632"
-COLOR_NAVY_DARK = "#0d0d1f"
+COLOR_NAVY = "#090d26"        # matches theme_manager.py navy — header blends with logo
+COLOR_NAVY_DARK = "#050817"
 COLOR_RED = "#E91B2F"
 COLOR_RED_DARK = "#b91424"
 COLOR_BG = "#f2f4f7"
