@@ -246,8 +246,27 @@ def apply_theme_to_window(root, theme_manager, refresh_callback=None):
                 for child in widget.winfo_children():
                     _walk(child, c)
                 return
-            # Scheduler button → navy
+            # Scheduler button → navy when idle, red when running (Stop Scheduler)
             if tag == "sched":
+                try:
+                    txt = str(widget.cget("text")).lower()
+                except Exception:
+                    txt = ""
+                if "stop" in txt:
+                    # Scheduler is running — keep the red "Stop" state
+                    widget.configure(bg=c["red"], fg="#ffffff",
+                                     activebackground="#d84410",
+                                     activeforeground="#ffffff")
+                else:
+                    widget.configure(bg=c["navy"], fg="#ffffff",
+                                     activebackground="#1b2047",
+                                     activeforeground="#ffffff")
+                for child in widget.winfo_children():
+                    _walk(child, c)
+                return
+            # Save button → navy (same as idle scheduler, but separate tag
+            # so toggle_scheduler never accidentally affects it)
+            if tag == "save":
                 widget.configure(bg=c["navy"], fg="#ffffff",
                                  activebackground="#1b2047",
                                  activeforeground="#ffffff")
