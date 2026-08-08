@@ -230,13 +230,17 @@ def apply_theme_to_window(root, theme_manager, refresh_callback=None):
         try:
             # Protected widgets: header/header_label/brand → navy
             if tag in ("header", "header_label", "brand"):
-                if isinstance(widget, tk.Label):
-                    widget.configure(bg=c["navy"], fg="#ffffff")
-                else:
-                    widget.configure(bg=c["navy"])
-                # Still recurse into children (they may be themeable)
-                for child in widget.winfo_children():
-                    _walk(child, c)
+                # Set to navy and DO NOT recurse into children.
+                # The entire header subtree stays untouched on theme
+                # toggle — header is always navy #090d26 regardless
+                # of light/dark theme.
+                try:
+                    if isinstance(widget, tk.Label):
+                        widget.configure(bg=c["navy"], fg="#ffffff")
+                    else:
+                        widget.configure(bg=c["navy"])
+                except Exception:
+                    pass
                 return
             # Run button → red
             if tag == "run":
