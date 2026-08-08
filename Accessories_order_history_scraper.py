@@ -1086,6 +1086,9 @@ class ScraperApp:
         header.pack_propagate(False)
         header._tag = "header"
 
+
+        header.bind("<Enter>", lambda e, w=header: w.configure(bg=COLOR_NAVY))
+        header.bind("<Leave>", lambda e, w=header: w.configure(bg=COLOR_NAVY))
         # ── Logo (PNG) pinned to the TOP-LEFT, resized at runtime via PIL ──
         wordmark_path = os.path.join(get_script_dir(), WORDMARK_PNG_NAME)
         logo_holder = tk.Frame(header, bg=COLOR_NAVY)
