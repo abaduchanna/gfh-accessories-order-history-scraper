@@ -1060,28 +1060,24 @@ class ScraperApp:
             pass
 
     def _set_window_icon(self, root):
-        """Set the window icon from the embedded .ico (base64), falling back
-        to an external file next to the script if embedding somehow fails.
-
-        On Windows, `iconbitmap` is the correct API — it sets both the
-        titlebar icon AND the taskbar icon (since Windows 7+). We do NOT
-        call `iconphoto` afterwards because that would override the .ico
-        with a lower-quality bitmap.
-        """
-        # Use EMBEDDED_ICON_B64 first (self-contained, works in frozen .exe)
+        """Set taskbar + titlebar icon from embedded base64 ICO."""
+        import base64, tempfile, atexit, os
         try:
-            _embedded_ico = _extract_embedded_icon(EMBEDDED_ICON_B64, "app_icon.ico")
-            if _embedded_ico:
-                root.iconbitmap(default=False, bitmap=_embedded_ico)
-                root.iconbitmap(_embedded_ico)
-                return
+            data = base64.b64decode(EMBEDDED_ICON_B64.strip())
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".ico")
+            tmp.write(data)
+            tmp.close()
+            atexit.register(lambda p=tmp.name: os.path.exists(p) and os.unlink(p))
+            root.iconbitmap(default=False, bitmap=tmp.name)
+            root.iconbitmap(tmp.name)
+            return
         except Exception:
             pass
         try:
-            import base64, tempfile, atexit
             data = base64.b64decode(ICON_ICO_B64.strip())
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".ico")
-            tmp.write(data); tmp.close()
+            tmp.write(data)
+            tmp.close()
             atexit.register(lambda p=tmp.name: os.path.exists(p) and os.unlink(p))
             root.iconbitmap(default=False, bitmap=tmp.name)
             root.iconbitmap(tmp.name)
@@ -1195,6 +1191,8 @@ class ScraperApp:
 
         theme_btn = create_theme_toggle_button(header, self.theme_manager, on_toggle=self._apply_theme)
         theme_btn.pack(side="right", padx=16)
+
+        self._lock_header_colors(header, COLOR_NAVY)
 
         self._lock_header_colors(header, COLOR_NAVY)
 
