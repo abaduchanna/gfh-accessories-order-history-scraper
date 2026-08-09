@@ -15,7 +15,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('GFH_Telecom_TBLogo.ico', '.'),
+        ('gfh_icon_white.ico', '.'),
         ('GFH_Telecom_Logo.png', '.'),
     ],
     hiddenimports=[
@@ -70,5 +70,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='GFH_Telecom_TBLogo.ico',
+    icon='gfh_icon_white.ico',
 )
