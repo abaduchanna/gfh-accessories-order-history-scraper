@@ -1,0 +1,50 @@
+# Azure DevOps Pipeline — Build all .exe files on Windows (FREE)
+# 
+# Free tier: 1,800 minutes/month with Windows runners
+#
+# SETUP:
+# 1. Go to https://dev.azure.com
+# 2. Create a free account (sign in with GitHub)
+# 3. Create a new project
+# 4. Go to Project Settings → Service connections → New service connection → GitHub
+# 5. Authorize Azure DevOps to access your GitHub repos
+# 6. Go to Pipelines → New Pipeline → GitHub → Select the repo
+# 7. Azure will detect azure-pipelines.yml → Click "Run"
+#
+# Every push to main triggers a build.
+# Download .exe files from the build Artifacts.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.11'
+  displayName: 'Install Python 3.11'
+
+- script: |
+    python -m pip install --upgrade pip setuptools wheel
+    pip install -r requirements.txt
+    pip install --upgrade pyinstaller
+  displayName: 'Install dependencies'
+
+- script: |
+    for %%f in (*.spec) do (
+      echo Building: %%f
+      python -m PyInstaller "%%f" --noconfirm --clean
+    )
+  displayName: 'Build all .spec files'
+  condition: succeeded()
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'dist'
+    artifactName: 'exe'
+  displayName: 'Publish .exe files as artifacts'
+  condition: succeededOrFailed()
