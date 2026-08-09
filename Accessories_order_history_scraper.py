@@ -1061,15 +1061,25 @@ class ScraperApp:
 
     def _set_window_icon(self, root):
         """Set taskbar + titlebar icon from embedded base64 ICO."""
-        import base64, tempfile, atexit, os
+        import base64, tempfile, atexit, os, sys
+        if getattr(sys, "frozen", False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = get_script_dir()
+        ico_path = os.path.join(base_dir, "gfh_icon_white.ico")
+        if os.path.exists(ico_path):
+            try:
+                root.iconbitmap(default=False, bitmap=ico_path)
+                root.iconbitmap(ico_path)
+                return
+            except Exception:
+                pass
         try:
             data = base64.b64decode(EMBEDDED_ICON_B64.strip())
-            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".ico")
-            tmp.write(data)
-            tmp.close()
-            atexit.register(lambda p=tmp.name: os.path.exists(p) and os.unlink(p))
-            root.iconbitmap(default=False, bitmap=tmp.name)
-            root.iconbitmap(tmp.name)
+            with open(ico_path, "wb") as f:
+                f.write(data)
+            root.iconbitmap(default=False, bitmap=ico_path)
+            root.iconbitmap(ico_path)
             return
         except Exception:
             pass
@@ -1085,11 +1095,11 @@ class ScraperApp:
         except Exception:
             pass
         icon_dir = get_script_dir()
-        ico_path = os.path.join(icon_dir, ICON_ICO_NAME)
+        ico_path2 = os.path.join(icon_dir, ICON_ICO_NAME)
         try:
-            if os.path.exists(ico_path):
-                root.iconbitmap(default=False, bitmap=ico_path)
-                root.iconbitmap(ico_path)
+            if os.path.exists(ico_path2):
+                root.iconbitmap(default=False, bitmap=ico_path2)
+                root.iconbitmap(ico_path2)
         except Exception:
             pass
 
