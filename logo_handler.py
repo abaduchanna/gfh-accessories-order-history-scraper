@@ -90,7 +90,7 @@ class LogoHandler:
             print(f"Error loading logo from base64: {e}")
             return False
     
-    def create_text_logo(self, text="3⚡Verse", color="#090d26", size=12):
+    def create_text_logo(self, text="GFH TELECOM", color="#090d26", size=12):
         """Create text-based logo when image unavailable."""
         self.logo_label = tk.Label(
             self.parent,
@@ -134,7 +134,7 @@ class LogoHandler:
         )
 
 
-def add_logo_to_header(header_frame, logo_path=None, text="3⚡Verse"):
+def add_logo_to_header(header_frame, logo_path=None, text="GFH TELECOM"):
     """
     Easy function to add logo to header frame.
     
