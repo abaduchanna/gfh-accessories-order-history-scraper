@@ -1062,6 +1062,20 @@ class ScraperApp:
     def _set_window_icon(self, root):
         """Set taskbar + titlebar icon from embedded base64 ICO."""
         import base64, tempfile, atexit, os, sys
+
+        # 1. Try sys._MEIPASS
+        meipass = getattr(sys, "_MEIPASS", None)
+        if meipass:
+            ico_path = os.path.join(meipass, "gfh_icon_white.ico")
+            if os.path.exists(ico_path):
+                try:
+                    root.iconbitmap(default=False, bitmap=ico_path)
+                    root.iconbitmap(ico_path)
+                    return
+                except Exception:
+                    pass
+
+        # 2. Try next to the exe/script
         if getattr(sys, "frozen", False):
             base_dir = os.path.dirname(sys.executable)
         else:
@@ -1074,8 +1088,12 @@ class ScraperApp:
                 return
             except Exception:
                 pass
+
+        # 3. Decode to %TEMP%
         try:
             data = base64.b64decode(EMBEDDED_ICON_B64.strip())
+            tmp_dir = os.environ.get("TEMP", tempfile.gettempdir())
+            ico_path = os.path.join(tmp_dir, "gfh_app_icon.ico")
             with open(ico_path, "wb") as f:
                 f.write(data)
             root.iconbitmap(default=False, bitmap=ico_path)
@@ -1083,6 +1101,8 @@ class ScraperApp:
             return
         except Exception:
             pass
+
+        # 4. Last resort
         try:
             data = base64.b64decode(ICON_ICO_B64.strip())
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".ico")
