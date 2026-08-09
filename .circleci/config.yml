@@ -20,19 +20,16 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pip install -r requirements.txt
-            pip install pyinstaller
+            python -m pip install --upgrade pip setuptools wheel
+            python -m pip install -r requirements.txt
+            python -m pip install --upgrade pyinstaller
       - run:
-          name: Build Accessories_order_history_scraper.exe
-          command: >
-            pyinstaller --onefile --windowed --clean
-            --name "Accessories_order_history_scraper"
-            --icon "GFH_Telecom_TBLogo.ico"
-            --add-data "GFH_Telecom_Logo.png;."
-            --add-data "GFH_Telecom_TBLogo.ico;."
-            --hidden-import win32gui --hidden-import win32con
-            --hidden-import win32api --hidden-import win32process
-            "Accessories_order_history_scraper.pyw"
+          name: Build all .spec files
+          command: |
+            Get-ChildItem *.spec | ForEach-Object {
+              Write-Host "Building: $($_.Name)"
+              python -m PyInstaller $_.Name --noconfirm --clean
+            }
       - store_artifacts:
           path: dist
           destination: exe
