@@ -1010,9 +1010,9 @@ class ScraperApp:
         # Dynamic screen resolution support: size to 90% of the screen and
         # center it (DPI-aware), then stay a normal resizable top-level so
         # Windows Snap (50% left/right, corners, Win+arrow) keeps working.
+        self._set_window_icon(root)
         self._apply_dynamic_geometry()
         root.configure(bg=COLOR_BG)
-        self._set_window_icon(root)
 
         self.theme_manager = ThemeManager("GFH Accessories Order History Scraper")
         self._build_header()
