@@ -1050,15 +1050,6 @@ class ScraperApp:
             pass
 
 
-        # Brute-force taskbar icon: set AppUserModelID so Windows taskbar
-        # shows our icon instead of the generic Python/PyInstaller icon
-        try:
-            import ctypes
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-                "GFHTelecom.App")
-        except Exception:
-            pass
-
     def _set_window_icon(self, root):
         """Set taskbar + titlebar icon from embedded base64 ICO."""
         import base64, tempfile, atexit, os, sys
@@ -1069,7 +1060,6 @@ class ScraperApp:
             ico_path = os.path.join(meipass, "gfh_icon_white.ico")
             if os.path.exists(ico_path):
                 try:
-                    root.iconbitmap(ico_path)
                     root.iconbitmap(ico_path)
                     return
                 except Exception:
@@ -1084,7 +1074,6 @@ class ScraperApp:
         if os.path.exists(ico_path):
             try:
                 root.iconbitmap(ico_path)
-                root.iconbitmap(ico_path)
                 return
             except Exception:
                 pass
@@ -1096,7 +1085,6 @@ class ScraperApp:
             ico_path = os.path.join(tmp_dir, "gfh_app_icon.ico")
             with open(ico_path, "wb") as f:
                 f.write(data)
-            root.iconbitmap(ico_path)
             root.iconbitmap(ico_path)
             return
         except Exception:
@@ -1110,7 +1098,6 @@ class ScraperApp:
             tmp.close()
             atexit.register(lambda p=tmp.name: os.path.exists(p) and os.unlink(p))
             root.iconbitmap(tmp.name)
-            root.iconbitmap(tmp.name)
             return
         except Exception:
             pass
@@ -1118,7 +1105,6 @@ class ScraperApp:
         ico_path2 = os.path.join(icon_dir, ICON_ICO_NAME)
         try:
             if os.path.exists(ico_path2):
-                root.iconbitmap(ico_path2)
                 root.iconbitmap(ico_path2)
         except Exception:
             pass
@@ -1433,9 +1419,10 @@ def _enable_dpi_awareness() -> None:
         return
     try:
         import ctypes
-        # Set AppUserModelID BEFORE any window is created
+        # Set AppUserModelID BEFORE any window is created — must be UNIQUE
+        # per app or Windows caches a generic/shared taskbar icon.
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.App")
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.AccessoriesOrderHistoryScraper")
         except Exception:
             pass
         try:
