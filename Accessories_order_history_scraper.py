@@ -1054,6 +1054,16 @@ class ScraperApp:
         """Set taskbar + titlebar icon from embedded base64 ICO."""
         import base64, tempfile, atexit, os, sys
 
+        # Set AppUserModelID AGAIN after Tk creation (before window is shown).
+        # This must be set both BEFORE Tk (in _enable_dpi_awareness) and AFTER
+        # Tk creation but BEFORE the window is realized — Windows needs both
+        # for the taskbar to show the correct icon.
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.AccessoriesOrderHistoryScraper")
+        except Exception:
+            pass
+
         # 1. Try sys._MEIPASS
         meipass = getattr(sys, "_MEIPASS", None)
         if meipass:
