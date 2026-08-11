@@ -18,7 +18,8 @@ a = Analysis(
         ('gfh_app_icon_new.ico', '.'),
         ('GFH_Telecom_Logo.png', '.'),
     ],
-    hiddenimports=[
+    hiddenimports = [
+
         'tkinter',
         'selenium',
         'selenium.webdriver',
@@ -35,6 +36,9 @@ a = Analysis(
         'gspread',
         'oauth2client',
         'pywin32',
+        'selenium.webdriver.edge.webdriver',
+        'selenium.webdriver.edge.options',
+        'selenium.webdriver.edge.service',
     ],
     hookspath=[],
     hooksconfig={},
