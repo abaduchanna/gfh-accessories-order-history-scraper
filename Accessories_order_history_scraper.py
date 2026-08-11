@@ -1016,8 +1016,7 @@ class ScraperApp:
         # shows our icon instead of the generic Python/PyInstaller icon
         try:
             import ctypes
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-                "GFHTelecom.App")
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.AccessoriesOrderHistoryScraper")
         except Exception:
             pass
 
@@ -1435,7 +1434,7 @@ def _enable_dpi_awareness() -> None:
         import ctypes
         # Set AppUserModelID BEFORE any window is created
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.App")
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.AccessoriesOrderHistoryScraper")
         except Exception:
             pass
         try:
