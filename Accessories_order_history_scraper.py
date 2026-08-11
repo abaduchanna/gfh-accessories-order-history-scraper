@@ -1012,14 +1012,6 @@ class ScraperApp:
         # Windows Snap (50% left/right, corners, Win+arrow) keeps working.
         self._apply_dynamic_geometry()
         root.configure(bg=COLOR_BG)
-        # Brute-force taskbar icon: set AppUserModelID so Windows taskbar
-        # shows our icon instead of the generic Python/PyInstaller icon
-        try:
-            import ctypes
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.AccessoriesOrderHistoryScraper")
-        except Exception:
-            pass
-
         self._set_window_icon(root)
 
         self.theme_manager = ThemeManager("GFH Accessories Order History Scraper")
@@ -1432,11 +1424,6 @@ def _enable_dpi_awareness() -> None:
         return
     try:
         import ctypes
-        # Set AppUserModelID BEFORE any window is created
-        try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("GFHTelecom.AccessoriesOrderHistoryScraper")
-        except Exception:
-            pass
         try:
             ctypes.windll.shcore.SetProcessDpiAwareness(1)  # system DPI aware
         except Exception:
