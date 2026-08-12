@@ -10,31 +10,89 @@ executors:
 jobs:
   build-exe:
     executor: win-exe-builder
+    environment:
+      PYTHONUNBUFFERED: 1
     steps:
       - checkout
+      
       - run:
           name: Install Python 3.11
           command: |
             choco install python311 -y --no-progress
-            python -m pip install --upgrade pip
+            python -m pip install --upgrade pip setuptools wheel
+            Write-Host "Python version:" -ForegroundColor Green
+            python --version
+      
       - run:
           name: Install dependencies
           command: |
-            python -m pip install --upgrade pip setuptools wheel
+            Write-Host "Installing requirements..." -ForegroundColor Green
             python -m pip install -r requirements.txt
             python -m pip install --upgrade pyinstaller
+            Write-Host "Dependencies installed." -ForegroundColor Green
+      
       - run:
-          name: Build all .spec files
+          name: Build EXE files from .spec files
           command: |
-            Get-ChildItem *.spec | ForEach-Object {
-              Write-Host "Building: $($_.Name)"
-              python -m PyInstaller $_.Name --noconfirm --clean
+            Write-Host "Starting PyInstaller builds..." -ForegroundColor Green
+            $specFiles = Get-ChildItem *.spec
+            if ($specFiles.Count -eq 0) {
+              Write-Host "No .spec files found!" -ForegroundColor Red
+              exit 1
             }
+            
+            foreach ($spec in $specFiles) {
+              Write-Host "Building: $($spec.Name)" -ForegroundColor Cyan
+              python -m PyInstaller $spec.Name --noconfirm --clean --log-level INFO
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "ERROR building $($spec.Name)" -ForegroundColor Red
+                exit 1
+              }
+              Write-Host "✓ Successfully built $($spec.Name)" -ForegroundColor Green
+            }
+            
+            Write-Host "All builds completed." -ForegroundColor Green
+      
+      - run:
+          name: Verify EXE files
+          command: |
+            Write-Host "Verifying EXE files..." -ForegroundColor Green
+            $exeFiles = Get-ChildItem -Path "dist" -Name "*.exe"
+            if ($exeFiles.Count -eq 0) {
+              Write-Host "No EXE files found in dist!" -ForegroundColor Red
+              exit 1
+            }
+            
+            Write-Host "Found $($exeFiles.Count) EXE file(s):" -ForegroundColor Green
+            foreach ($exe in $exeFiles) {
+              Write-Host "  ✓ $exe" -ForegroundColor Green
+            }
+      
       - store_artifacts:
           path: dist
-          destination: exe
+          destination: exe-builds
+      
+      - run:
+          name: Build summary
+          command: |
+            Write-Host "========================================" -ForegroundColor Cyan
+            Write-Host "Build Summary" -ForegroundColor Cyan
+            Write-Host "========================================" -ForegroundColor Cyan
+            $artifacts = Get-ChildItem -Path "dist" -Name "*.exe"
+            Write-Host "Total EXE files: $($artifacts.Count)" -ForegroundColor Green
+            Write-Host "Status: SUCCESS" -ForegroundColor Green
 
 workflows:
+  version: 2.1
+  
   build:
     jobs:
-      - build-exe
+      - build-exe:
+          filters:
+            branches:
+              only:
+                - main
+                - master
+          context:
+            - windows-builds
