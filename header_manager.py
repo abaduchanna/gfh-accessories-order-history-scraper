@@ -35,7 +35,7 @@ class FixedHeaderManager:
         self.logo_label = tk.Label(
             self.left_frame,
             text="",
-            font=("Arial", 9, "bold"),
+            font=("Segoe UI", 9, "bold"),
             fg=self.BRAND_RED,
             bg=self.BRAND_NAVY,
             highlightthickness=0,
@@ -50,7 +50,7 @@ class FixedHeaderManager:
         self.title_label = tk.Label(
             self.center_frame,
             text=title,
-            font=("Arial", 16, "bold"),
+            font=("Segoe UI", 16, "bold"),
             fg="white",
             bg=self.BRAND_NAVY,
             highlightthickness=0,
@@ -104,7 +104,7 @@ class FixedHeaderManager:
             relief=tk.FLAT,
             padx=12,
             pady=8,
-            font=("Arial", 9, "bold"),
+            font=("Segoe UI", 9, "bold"),
             cursor="hand2",
             highlightthickness=0,
             borderwidth=0
@@ -118,7 +118,7 @@ class FixedHeaderManager:
         self.copyright_label = tk.Label(
             self.right_frame,
             text=copyright_text,
-            font=("Arial", 7),
+            font=("Segoe UI", 7),
             fg="white",
             bg=self.BRAND_NAVY,
             highlightthickness=0,
