@@ -1,6 +1,6 @@
 """
 Unified Theme Manager — matches VidaPay Transfer Bot theme system.
-Developed by Abad Umair Channa | Copyright © 2026 | All rights reserved.
+Developed by Abad Umair Channa.
 
 Light/dark themes with the GFH brand palette:
   - Navy (#090d26) and red (#f0541c) stay constant in both themes.
@@ -117,11 +117,19 @@ class ThemeManager:
 
     @staticmethod
     def get_copyright_text():
-        return f"\u00a9 {ThemeManager.get_copyright_year()} Developed by Abad Umair Channa | Copyright © 2026 | All rights reserved.now().year
+        return f"\u00a9 {ThemeManager.get_copyright_year()} Developed by Abad Umair Channa"
+
+
+def get_copyright_year():
+    return datetime.now().year
 
 
 def get_copyright_text():
-    return f"\u00a9 {get_copyright_year()} Developed by Abad Umair Channa | Copyright © 2026 | All rights reserved.Label is currently displaying a PhotoImage."""
+    return f"\u00a9 {get_copyright_year()} Developed by Abad Umair Channa"
+
+
+def _widget_has_image(widget):
+    """Return True if a tk.Label is currently displaying a PhotoImage."""
     try:
         img = widget.cget("image")
         return bool(img) and str(img) != ""
