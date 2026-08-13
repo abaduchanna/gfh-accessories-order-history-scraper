@@ -1,6 +1,15 @@
 """
 Logo Handler - Theme-Safe Transparent Logo Display
-Developed by Abad Umair Channa | Copyright © 2026 | All rights reserved."""
+Developed by Abad Umair Channa
+"""
+
+import tkinter as tk
+import os
+from pathlib import Path
+
+
+class LogoHandler:
+    """Manages logo display with theme compatibility."""
     
     def __init__(self, parent_frame):
         self.parent = parent_frame
