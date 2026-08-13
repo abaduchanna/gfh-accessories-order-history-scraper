@@ -1,7 +1,14 @@
 """
 Fixed Header Manager - Proper Theme Support
 Header stays navy blue - doesn't change on theme toggle
-Developed by Abad Umair Channa | Copyright © 2026 | All rights reserved."""
+Developed by Abad Umair Channa
+"""
+
+import tkinter as tk
+
+
+class FixedHeaderManager:
+    """Manages header with centered title, logo, and theme toggle."""
     
     BRAND_NAVY = "#090d26"
     BRAND_RED = "#f0541c"
@@ -52,7 +59,8 @@ Developed by Abad Umair Channa | Copyright © 2026 | All rights reserved."""
         )
         self.title_label.pack(expand=True, fill=tk.BOTH)
         
-        # RIGHT: Theme toggle + Developed by Abad Umair Channa | Copyright © 2026 | All rights reserved.right_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
+        # RIGHT: Theme toggle + Copyright
+        self.right_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
         self.right_frame.pack(side=tk.RIGHT, padx=15, pady=5)
         
         self.theme_toggle_btn = None
