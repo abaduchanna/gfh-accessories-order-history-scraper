@@ -12,11 +12,13 @@ block_cipher = None
 
 a = Analysis(
     ['Accessories_order_history_scraper.py'],
-    pathex=[],
+    pathex=['.'],
     binaries=[],
     datas=[
-        ('gfh_app_icon_new.ico', '.'),
         ('GFH_Telecom_Logo.png', '.'),
+        ('gfh_app_icon_new.ico', '.'),
+        ('gfh_icon_white.ico', '.'),
+        ('theme_manager.py', '.'),
     ],
     hiddenimports = [
 
