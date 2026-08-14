@@ -1016,7 +1016,7 @@ class ScraperApp:
         root.configure(bg=COLOR_BG)
         self._set_window_icon(root)
 
-        self.theme_manager = ThemeManager("GFH Accessories Order History Scraper")
+        self.theme_manager = ThemeManager("GFH Accessories Order History Scraper", app_name="gfh-accessories-order-history-scraper")
         self._build_header()
         self._build_body()
         self._build_log_area()

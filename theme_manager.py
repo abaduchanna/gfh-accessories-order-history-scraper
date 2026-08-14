@@ -17,7 +17,7 @@ from datetime import datetime
 class ThemeManager:
     """Manages light/dark themes with protected widget tags."""
 
-    CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".config", "gfh-telecom")
+    CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".config", "gfh-telecom", getattr(self, "app_name", "GFH"))
     CONFIG_FILE = os.path.join(CONFIG_DIR, "theme.json")
 
     BRAND_NAVY = "#090d26"
