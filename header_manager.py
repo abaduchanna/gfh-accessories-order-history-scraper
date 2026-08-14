@@ -16,7 +16,7 @@ def _get_resampling():
     """Compatibility shim for Pillow < 9.1 (_get_resampling())."""
     try:
         from PIL import Image
-        return _get_resampling()
+        return Image.Resampling.LANCZOS
     except AttributeError:
         try:
             from PIL import Image
@@ -31,6 +31,7 @@ class FixedHeaderManager:
     BRAND_RED = "#f0541c"
     
     def __init__(self, parent, title="App", height=108):
+        import tkinter as tk  # lazy import
         self.parent = parent
         self.title = title
         self.height = height
