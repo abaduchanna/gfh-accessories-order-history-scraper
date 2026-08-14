@@ -3,9 +3,26 @@ Fixed Header Manager - Proper Theme Support
 Header stays navy blue - doesn't change on theme toggle
 Developed by Abad Umair Channa
 """
+import os
 
-import tkinter as tk
+_HEADER_MANAGER_VERSION = "2.1.0"
 
+
+# tkinter imported lazily inside methods
+
+
+
+def _get_resampling():
+    """Compatibility shim for Pillow < 9.1 (_get_resampling())."""
+    try:
+        from PIL import Image
+        return _get_resampling()
+    except AttributeError:
+        try:
+            from PIL import Image
+            return Image.ANTIALIAS
+        except AttributeError:
+            return 1  # LANCZOS constant
 
 class FixedHeaderManager:
     """Manages header with centered title, logo, and theme toggle."""
@@ -72,7 +89,7 @@ class FixedHeaderManager:
             try:
                 from PIL import Image, ImageTk
                 img = Image.open(logo_path)
-                img.thumbnail((80, 30), Image.Resampling.LANCZOS)
+                img.thumbnail((120, 45), _get_resampling())
                 self.photo = ImageTk.PhotoImage(img)
                 self.logo_label.configure(image=self.photo, text="")
                 return
@@ -87,7 +104,7 @@ class FixedHeaderManager:
         self.theme_manager = theme_manager
         
         def toggle_and_callback():
-            theme_manager.toggle_theme()
+            theme_manager.toggle()
             # Update ONLY the button text, not header colors
             self.update_button_text()
             if callback:
@@ -147,4 +164,3 @@ class FixedHeaderManager:
         self.update_button_text()
 
 
-import os
