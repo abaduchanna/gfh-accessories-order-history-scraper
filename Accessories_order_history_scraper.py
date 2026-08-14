@@ -68,7 +68,7 @@ from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 import tkinter as tk
-from theme_manager import ThemeManager, apply_theme_to_window, get_copyright_year, create_theme_toggle_button
+from theme_manager import ThemeManager, apply_theme_to_window, get_copyright_year
 from header_manager import FixedHeaderManager
 from logo_handler import LogoHandler
 from tkinter import ttk, scrolledtext, messagebox, filedialog
