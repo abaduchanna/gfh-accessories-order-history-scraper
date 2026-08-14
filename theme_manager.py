@@ -3,6 +3,8 @@ Theme Manager - Standardized for GFH/VidaPay Ecosystem
 Developed by Abad Umair Channa | Copyright © {year} | All rights reserved.
 """
 import os
+
+_THEME_MANAGER_VERSION = "2.1.0"
 import json
 from datetime import datetime
 
@@ -94,6 +96,7 @@ class ThemeManager:
         # Configure ttk styles
         style.configure("TFrame", background=colors["bg"])
         style.configure("TLabel", background=colors["bg"], foreground=colors["text"], font=("Segoe UI", 9))
+        style.configure("TCombobox", fieldbackground=colors.get("input", "#ffffff"), background=colors.get("panel_alt", "#eef0f6"), foreground=colors.get("text", "#16213a"))
         style.configure("TButton", background=colors["panel_alt"], foreground=colors["text"], font=("Segoe UI", 9))
         style.configure("TEntry", fieldbackground=colors["input"], foreground=colors["text"])
         style.configure("TNotebook", background=colors["bg"])

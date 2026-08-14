@@ -2,11 +2,26 @@
 Logo Handler - Theme-Safe Transparent Logo Display
 Developed by Abad Umair Channa
 """
+_LOGO_HANDLER_VERSION = "2.1.0"
 
-import tkinter as tk
+
+# tkinter imported lazily inside methods
 import os
 from pathlib import Path
 
+
+
+def _get_resampling():
+    """Compatibility shim for Pillow < 9.1."""
+    try:
+        from PIL import Image
+        return _get_resampling()
+    except AttributeError:
+        try:
+            from PIL import Image
+            return Image.ANTIALIAS
+        except AttributeError:
+            return 1
 
 class LogoHandler:
     """Manages logo display with theme compatibility."""
@@ -25,9 +40,10 @@ class LogoHandler:
                 return False
             
             img = Image.open(logo_path)
-            img.thumbnail((width, height), Image.Resampling.LANCZOS)
+            img.thumbnail((width, height), _get_resampling())
             
             self.photo_image = ImageTk.PhotoImage(img)
+            self._photo_ref = self.photo_image  # prevent GC
             
             self.logo_widget = tk.Label(
                 self.parent,
