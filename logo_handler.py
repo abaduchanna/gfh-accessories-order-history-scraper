@@ -45,6 +45,10 @@ class LogoHandler:
 
             self.photo_image = ImageTk.PhotoImage(img)
             self._photo_ref = self.photo_image  # prevent GC
+            try:
+                self.parent._logo_photo_ref = self.photo_image  # also on parent
+            except Exception:
+                pass
 
             self.logo_widget = tk.Label(
                 self.parent,
