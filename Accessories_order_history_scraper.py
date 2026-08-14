@@ -69,6 +69,8 @@ from openpyxl.utils import get_column_letter
 
 import tkinter as tk
 from theme_manager import ThemeManager, apply_theme_to_window, get_copyright_year, create_theme_toggle_button
+from header_manager import FixedHeaderManager
+from logo_handler import LogoHandler
 from tkinter import ttk, scrolledtext, messagebox, filedialog
 
 # ============================================================================
@@ -1143,79 +1145,9 @@ class ScraperApp:
         except Exception:
             pass
     def _build_header(self):
-        header = tk.Frame(self.root, bg=COLOR_NAVY, height=90)
-        header.pack(fill="x", side="top")
-        header.pack_propagate(False)
-        header._tag = "header"
+        """Header using FixedHeaderManager."""
+        self.header_mgr = FixedHeaderManager(self.root, title="GFH Accessories Order History Scraper")
 
-
-        header.bind("<Enter>", lambda e, w=header: w.configure(bg=COLOR_NAVY))
-        header.bind("<Leave>", lambda e, w=header: w.configure(bg=COLOR_NAVY))
-        # ── Logo (PNG) pinned to the TOP-LEFT, resized at runtime via PIL ──
-        wordmark_path = os.path.join(get_script_dir(), WORDMARK_PNG_NAME)
-        logo_holder = tk.Frame(header, bg=COLOR_NAVY)
-        logo_holder.pack(side="left", padx=(24, 16), pady=14)
-        logo_holder._tag = "header"
-
-        if os.path.exists(wordmark_path):
-            try:
-                from PIL import Image, ImageTk
-                # The source PNG is very large (6512×2275). Downscale to
-                # fit the 90px-tall header while preserving aspect ratio.
-                pil_img = Image.open(wordmark_path)
-                pil_img.load()
-                target_h = 62
-                ratio = target_h / pil_img.height
-                target_w = max(1, int(pil_img.width * ratio))
-                pil_img = pil_img.resize((target_w, target_h), Image.LANCZOS)
-                # Composite onto navy background so transparent corners look right
-                if pil_img.mode in ("RGBA", "LA"):
-                    bg = Image.new("RGB", pil_img.size, COLOR_NAVY)
-                    bg.paste(pil_img, mask=pil_img.split()[-1])
-                    pil_img = bg
-                self._wordmark_img = ImageTk.PhotoImage(pil_img)
-                tk.Label(logo_holder, image=self._wordmark_img, bg=COLOR_NAVY).pack()
-            except Exception as e:
-                print(f"  [WARN] could not load header logo PNG: {e}")
-                self._wordmark_img = None
-        else:
-            self._wordmark_img = None
-
-        if self._wordmark_img is None:
-            badge = tk.Label(
-                logo_holder, text="G", bg=COLOR_NAVY, fg=COLOR_RED,
-                font=("Segoe UI", 22, "bold"), width=2, highlightthickness=3,
-                highlightbackground=COLOR_RED, highlightcolor=COLOR_RED,
-            )
-            badge._tag = "header_label"
-            badge.pack(side="left", padx=(0, 8))
-            word_frame = tk.Frame(logo_holder, bg=COLOR_NAVY)
-            word_frame._tag = "header"
-            word_frame.pack(side="left")
-            tk.Label(word_frame, text="GFH", bg=COLOR_NAVY, fg=COLOR_RED,
-                     font=("Segoe UI", 15, "bold")).pack(anchor="w")
-            tk.Label(word_frame, text="TELECOM", bg=COLOR_NAVY, fg=COLOR_WHITE,
-                     font=("Segoe UI", 8, "bold")).pack(anchor="w")
-
-        # ── Title text to the RIGHT of the logo ──────────────────────────
-        title_frame = tk.Frame(header, bg=COLOR_NAVY)
-        title_frame._tag = "header"
-        title_frame.pack(side="left", padx=(0, 24), pady=14)
-        tk.Label(
-            title_frame, text="Accessories Order History Scraper", bg=COLOR_NAVY, fg=COLOR_WHITE,
-            font=("Segoe UI", 16, "bold"),
-        ).pack(anchor="w")
-        tk.Label(
-            title_frame, text="CPWH Wireless portal → order history export (URL columns removed)",
-            bg=COLOR_NAVY, fg="#c7c7dd", font=("Segoe UI", 9),
-        ).pack(anchor="w")
-
-        theme_btn = create_theme_toggle_button(header, self.theme_manager, on_toggle=self._apply_theme)
-        theme_btn.pack(side="right", padx=16)
-
-        self._lock_header_colors(header, COLOR_NAVY)
-
-        self._lock_header_colors(header, COLOR_NAVY)
 
     def _apply_theme(self, colors=None):
         apply_theme_to_window(self.root, self.theme_manager)
