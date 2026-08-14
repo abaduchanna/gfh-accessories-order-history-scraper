@@ -36,7 +36,7 @@ jobs:
       - name: Build EXE from .spec
         shell: bash
         run: |
-          pyinstaller "${{ matrix.app }}.spec"
+          python -m PyInstaller "${{ matrix.app }}.spec" --noconfirm --clean
           if [ ! -f "dist/${{ matrix.app }}.exe" ]; then
             echo "::error::Build failed - dist/${{ matrix.app }}.exe not found"
             exit 1
