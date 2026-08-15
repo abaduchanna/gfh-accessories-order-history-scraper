@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """
+
+def _resource_path(name):
+    """Resolve a bundled resource from source or PyInstaller _MEIPASS."""
+    if getattr(sys, "frozen", False):
+        base = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    else:
+        base = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base, name)
+
+
 GFH Telecom — Accessories Order History Scraper (GUI)
 =======================================================
 Logs into the CPWH Wireless portal, extracts the accessories order history,
