@@ -17,6 +17,7 @@ processed and exported (All / 7d / 30d / 90d / YTD / Custom).
 """
 
 # ── Auto-installer (version-aware) ─────────────────────────────────────────
+import subprocess
 import sys, subprocess
 def _pkg_version(dist):
     try:
