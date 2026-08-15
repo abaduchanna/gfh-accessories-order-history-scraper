@@ -1147,6 +1147,7 @@ class ScraperApp:
     def _build_header(self):
         """Header using FixedHeaderManager."""
         self.header_mgr = FixedHeaderManager(self.root, title="GFH Accessories Order History Scraper")
+        self.header_mgr.add_theme_toggle(self.theme_manager)
 
 
     def _apply_theme(self, colors=None):
