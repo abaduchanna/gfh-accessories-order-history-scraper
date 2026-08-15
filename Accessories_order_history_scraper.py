@@ -55,7 +55,7 @@ import threading
 import traceback
 import zipfile
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
