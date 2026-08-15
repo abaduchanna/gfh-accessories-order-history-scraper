@@ -72,6 +72,8 @@ from theme_manager import ThemeManager, apply_theme_to_window, get_copyright_yea
 from header_manager import FixedHeaderManager
 from logo_handler import LogoHandler
 from tkinter import ttk, scrolledtext, messagebox, filedialog
+import base64
+import tempfile
 
 # ============================================================================
 # BRAND / CONFIGURATION
