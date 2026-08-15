@@ -1035,7 +1035,7 @@ class ScraperApp:
         self._build_body()
         self._build_log_area()
         self._build_copyright_bar()
-        apply_theme_to_window(self.root, self.theme_manager)
+        # apply_theme_to_window removed — _walk handles all styling
 
         self._poll_queue()
         root.protocol("WM_DELETE_WINDOW", self._on_close)
@@ -1178,7 +1178,7 @@ class ScraperApp:
         """Apply theme colors to all widgets, not just ttk styles."""
         if colors is None:
             colors = self.theme_manager.get_colors()
-        apply_theme_to_window(self.root, self.theme_manager)
+        # apply_theme_to_window removed — _walk handles all styling
         # Update root background
         self.root.configure(bg=colors.get("bg", "#f6f7fb"))
         # Update all non-protected frames and labels
