@@ -1161,6 +1161,7 @@ class ScraperApp:
     def _build_header(self):
         """Header using FixedHeaderManager with logo."""
         self.header_mgr = FixedHeaderManager(self.root, title="GFH Accessories Order History Scraper")
+        self.header_mgr.add_theme_toggle(self.theme_manager, callback=self._apply_theme)
         if hasattr(self.header_mgr, "header_frame"):
             self.header_mgr.header_frame._tag = "header"
             for child in self.header_mgr.header_frame.winfo_children():
@@ -1171,7 +1172,6 @@ class ScraperApp:
         _logo_path = _resource_path(WORDMARK_PNG_NAME)
         if os.path.exists(_logo_path):
             self.header_mgr.set_logo(logo_path=_logo_path, text="GFH")
-        self.header_mgr.add_theme_toggle(self.theme_manager, callback=self._apply_theme)
 
 
     def _apply_theme(self, colors=None):
