@@ -115,10 +115,15 @@ class ThemeManager:
         self._walk(window, colors)
 
     def _walk(self, widget, colors):
-        """Walk widget tree and apply colors, skipping protected tags."""
+        """Walk widget tree and apply colors, skipping protected widgets."""
         import tkinter as tk
 
         for child in widget.winfo_children():
+            # Check _tag attribute (set by FixedHeaderManager and app code)
+            tag = getattr(child, "_tag", None)
+            if tag in self._PROTECTED_TAGS:
+                continue
+            # Also check bindtags for backward compatibility
             tags = set(child.bindtags())
             if tags & self._PROTECTED_TAGS:
                 continue
