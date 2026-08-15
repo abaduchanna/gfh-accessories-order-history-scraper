@@ -36,7 +36,7 @@ class FixedHeaderManager:
         self.title = title
         self.height = height
         self.theme_manager = None
-        
+
         # Create header frame - ALWAYS NAVY
         self.header_frame = tk.Frame(
             parent,
@@ -45,11 +45,11 @@ class FixedHeaderManager:
         )
         self.header_frame.pack(fill=tk.X)
         self.header_frame.pack_propagate(False)
-        
+
         # LEFT: Logo
         self.left_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
         self.left_frame.pack(side=tk.LEFT, padx=15, pady=10)
-        
+
         self.logo_label = tk.Label(
             self.left_frame,
             text="",
@@ -60,11 +60,11 @@ class FixedHeaderManager:
             borderwidth=0
         )
         self.logo_label.pack()
-        
+
         # CENTER: Title (centered)
         self.center_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
         self.center_frame.pack(side=tk.LEFT, expand=True, fill=tk.X)
-        
+
         self.title_label = tk.Label(
             self.center_frame,
             text=title,
@@ -76,13 +76,23 @@ class FixedHeaderManager:
             anchor="center"
         )
         self.title_label.pack(expand=True, fill=tk.BOTH)
-        
+
         # RIGHT: Theme toggle + Copyright
         self.right_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
         self.right_frame.pack(side=tk.RIGHT, padx=15, pady=5)
-        
+
         self.theme_toggle_btn = None
         self.copyright_label = None
+
+        # ── Self-protection: tag ALL header widgets so theme_manager._walk()
+        #    skips the entire header subtree. This makes the header immune to
+        #    theme toggles without relying on app code to tag widgets later.
+        self.header_frame._tag = "header"
+        self.left_frame._tag = "header"
+        self.center_frame._tag = "header"
+        self.right_frame._tag = "header"
+        self.logo_label._tag = "header"
+        self.title_label._tag = "header"
     
     def set_logo(self, logo_path=None, text="Logo"):
         """Set the logo in the header."""
@@ -129,11 +139,12 @@ class FixedHeaderManager:
             borderwidth=0
         )
         self.theme_toggle_btn.pack(side=tk.TOP, pady=5)
-    
+        self.theme_toggle_btn._tag = "header"
+
     def add_copyright(self, theme_manager):
         """Add copyright text to header."""
         copyright_text = theme_manager.get_copyright_text()
-        
+
         self.copyright_label = tk.Label(
             self.right_frame,
             text=copyright_text,
@@ -144,6 +155,7 @@ class FixedHeaderManager:
             borderwidth=0
         )
         self.copyright_label.pack(side=tk.BOTTOM, pady=2)
+        self.copyright_label._tag = "header"
     
     def update_button_text(self):
         """Update toggle button text ONLY - never change header colors."""

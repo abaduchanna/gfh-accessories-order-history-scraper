@@ -1162,12 +1162,8 @@ class ScraperApp:
         """Header using FixedHeaderManager with logo."""
         self.header_mgr = FixedHeaderManager(self.root, title="GFH Accessories Order History Scraper")
         self.header_mgr.add_theme_toggle(self.theme_manager, callback=self._apply_theme)
-        if hasattr(self.header_mgr, "header_frame"):
-            self.header_mgr.header_frame._tag = "header"
-            for child in self.header_mgr.header_frame.winfo_children():
-                child._tag = "header"
-                for grandchild in child.winfo_children():
-                    grandchild._tag = "header_label"
+        # FixedHeaderManager now tags ALL its own widgets with _tag="header"
+        # in __init__/add_theme_toggle/add_copyright, so no manual tagging needed.
         # Load logo
         _logo_path = _resource_path(WORDMARK_PNG_NAME)
         if os.path.exists(_logo_path):
@@ -1175,34 +1171,23 @@ class ScraperApp:
 
 
     def _apply_theme(self, colors=None):
-        """Apply theme colors to all widgets, not just ttk styles."""
+        """Apply theme colors to all widgets, not just ttk styles.
+
+        Single source of truth: delegate to theme_manager.apply_theme_to_window(),
+        which walks the tree, skips any widget with _tag in PROTECTED_TAGS,
+        and handles Frame/Labelframe/Label/Button/Entry/Text/etc.
+        """
         if colors is None:
             colors = self.theme_manager.get_colors()
-        apply_theme_to_window(self.root, self.theme_manager)
-        # Update root background
-        self.root.configure(bg=colors.get("bg", "#f6f7fb"))
-        # Update all non-protected frames and labels
-        for widget in self.root.winfo_children():
-            self._theme_widget(widget, colors)
-
-    def _theme_widget(self, widget, colors):
-        """Recursively apply theme colors to widgets."""
-        import tkinter as tk
-        try:
-            tag = getattr(widget, "_tag", None)
-            if tag not in ("header", "header_label", "brand", "logo", "run", "sched", "stop"):
-                bg = colors.get("bg", "#f6f7fb")
-                fg = colors.get("text", "#16213a")
-                if isinstance(widget, tk.Frame):
-                    widget.configure(bg=bg)
-                elif isinstance(widget, tk.Label):
-                    widget.configure(bg=bg, fg=fg)
-                elif isinstance(widget, tk.Entry):
-                    widget.configure(bg=colors.get("input", "#ffffff"), fg=fg)
-            for child in widget.winfo_children():
-                self._theme_widget(child, colors)
-        except Exception:
-            pass
+        # theme_manager.apply_theme_to_window handles:
+        #   - ttk.Style configuration (clam theme, TFrame/TLabel/TButton/etc.)
+        #   - recursive _walk() that skips _tag-protected widgets (header)
+        #   - Labelframe (was previously missed → panels stayed white)
+        #   - Checkbutton/Radiobutton selectcolor
+        self.theme_manager.apply_theme_to_window(self.root)
+        # Refresh header toggle button text in case theme changed
+        if hasattr(self.header_mgr, 'update_button_text'):
+            self.header_mgr.update_button_text()
 
     def _build_body(self):
         body = tk.Frame(self.root, bg=COLOR_BG)
