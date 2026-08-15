@@ -130,8 +130,13 @@ class ThemeManager:
 
             wtype = child.winfo_class()
             try:
+                # tk.Frame, ttk.Frame, tk.Toplevel, tk.Tk
                 if wtype in ("Frame", "Tk", "Toplevel"):
                     child.configure(bg=colors["bg"])
+                # tk.LabelFrame — winfo_class() returns "Labelframe" (lowercase f).
+                # This was previously missed, causing panels to stay white in dark mode.
+                elif wtype in ("Labelframe", "labelframe"):
+                    child.configure(bg=colors["panel"], fg=colors["text"])
                 elif wtype == "Label":
                     child.configure(bg=colors["bg"], fg=colors["text"])
                 elif wtype == "Button":
@@ -144,6 +149,19 @@ class ThemeManager:
                     child.configure(bg=colors["input"], fg=colors["text"])
                 elif wtype == "PanedWindow":
                     child.configure(bg=colors["bg"])
+                elif wtype == "Checkbutton":
+                    child.configure(bg=colors["bg"], fg=colors["text"],
+                                    activebackground=colors["bg"], activeforeground=colors["text"],
+                                    selectcolor=colors["panel"])
+                elif wtype == "Radiobutton":
+                    child.configure(bg=colors["bg"], fg=colors["text"],
+                                    activebackground=colors["bg"], activeforeground=colors["text"],
+                                    selectcolor=colors["panel"])
+                elif wtype == "Combobox":
+                    try:
+                        child.configure(bg=colors["input"], fg=colors["text"])
+                    except tk.TclError:
+                        pass
             except tk.TclError:
                 pass
             self._walk(child, colors)
