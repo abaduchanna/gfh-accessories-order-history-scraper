@@ -101,6 +101,7 @@ class FixedHeaderManager:
         self.logo_label.configure(text=text)
     
     def add_theme_toggle(self, theme_manager, callback=None):
+        import tkinter as tk  # lazy import
         """Add theme toggle button to header."""
         self.theme_manager = theme_manager
         
