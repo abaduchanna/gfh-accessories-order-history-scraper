@@ -31,8 +31,13 @@ class LogoHandler:
         self.photo_image = None
         self._photo_ref = None  # prevent GC
 
-    def load_logo_from_file(self, logo_path, width=108, height=40):
-        """Load and display logo from file (PNG/JPG)."""
+    def load_logo_from_file(self, logo_path, width=108, height=40, bg=None):
+        """Load and display logo from file (PNG/JPG).
+
+        bg: background color to set on the label immediately, so the
+        widget never flashes/shows the default Tk gray or a mismatched
+        theme color behind a transparent-PNG logo before it's themed.
+        """
         import tkinter as tk  # lazy import
         try:
             from PIL import Image, ImageTk
@@ -41,6 +46,8 @@ class LogoHandler:
                 return False
 
             img = Image.open(logo_path)
+            if img.mode not in ("RGBA", "LA"):
+                img = img.convert("RGBA")
             img.thumbnail((width, height), _get_resampling())
 
             self.photo_image = ImageTk.PhotoImage(img)
@@ -50,28 +57,33 @@ class LogoHandler:
             except Exception:
                 pass
 
-            self.logo_widget = tk.Label(
-                self.parent,
+            label_kwargs = dict(
                 image=self.photo_image,
                 highlightthickness=0,
                 borderwidth=0
             )
+            if bg is not None:
+                label_kwargs["bg"] = bg
+
+            self.logo_widget = tk.Label(self.parent, **label_kwargs)
 
             return True
         except Exception:
             return False
 
-    def create_text_placeholder(self, text="App", color="#090d26", size=12):
+    def create_text_placeholder(self, text="App", color="#090d26", size=12, bg=None):
         """Create text placeholder when image unavailable."""
         import tkinter as tk  # lazy import
-        self.logo_widget = tk.Label(
-            self.parent,
+        label_kwargs = dict(
             text=text,
             font=("Segoe UI", size, "bold"),
             fg=color,
             highlightthickness=0,
             borderwidth=0
         )
+        if bg is not None:
+            label_kwargs["bg"] = bg
+        self.logo_widget = tk.Label(self.parent, **label_kwargs)
         return True
 
     def pack(self, side=None, padx=10, pady=5):
