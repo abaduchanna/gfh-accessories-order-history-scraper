@@ -126,7 +126,7 @@ class FixedHeaderManager:
         
         self.theme_toggle_btn = tk.Button(
             self.right_frame,
-            text="☀️ Light" if theme_manager.current_theme == "dark" else "🌙 Dark",
+            text="☀️" if theme_manager.current_theme == "dark" else "🌙",
             command=toggle_and_callback,
             bg=self.BRAND_RED,
             fg="white",
@@ -160,7 +160,7 @@ class FixedHeaderManager:
     def update_button_text(self):
         """Update toggle button text ONLY - never change header colors."""
         if self.theme_toggle_btn and self.theme_manager:
-            new_text = "🌙 Dark" if self.theme_manager.current_theme == "light" else "☀️ Light"
+            new_text = "🌙" if self.theme_manager.current_theme == "light" else "☀️"
             self.theme_toggle_btn.configure(text=new_text)
         
         if self.copyright_label and self.theme_manager:
