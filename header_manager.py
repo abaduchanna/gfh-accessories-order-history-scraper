@@ -100,7 +100,9 @@ class FixedHeaderManager:
             try:
                 from PIL import Image, ImageTk
                 img = Image.open(logo_path)
-                img.thumbnail((120, 45), _get_resampling())
+                if img.mode not in ("RGBA", "LA"):
+                    img = img.convert("RGBA")
+                img.thumbnail((190, 80), _get_resampling())
                 self.photo = ImageTk.PhotoImage(img)
                 self.logo_label.configure(image=self.photo, text="")
                 return
@@ -130,9 +132,12 @@ class FixedHeaderManager:
             command=toggle_and_callback,
             bg=self.BRAND_RED,
             fg="white",
+            activebackground="#c9401a",
+            activeforeground="white",
             relief=tk.FLAT,
             padx=12,
             pady=8,
+            width=3,
             font=("Segoe UI", 9, "bold"),
             cursor="hand2",
             highlightthickness=0,
