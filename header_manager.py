@@ -48,7 +48,7 @@ class FixedHeaderManager:
 
         # LEFT: Logo
         self.left_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
-        self.left_frame.pack(side=tk.LEFT, padx=15, pady=10)
+        self.left_frame.pack(side=tk.LEFT, padx=(15, 0), pady=10)
 
         self.logo_label = tk.Label(
             self.left_frame,
@@ -60,10 +60,18 @@ class FixedHeaderManager:
             borderwidth=0
         )
         self.logo_label.pack()
+        self.logo_label._tag = "header"
 
-        # CENTER: Title (centered)
+        # Red vertical divider (GFH brand style, matching VidaPay ordering)
+        self.divider_frame = tk.Frame(self.header_frame, bg=self.BRAND_RED, width=3)
+        self.divider_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(12, 0), pady=12)
+        self.divider_frame._tag = "header"
+
+        # CENTER: Title — truly centered across the full header width using place()
+        # pack(expand=True) fills remaining space, then place(relx=0.5) centers within it.
         self.center_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
-        self.center_frame.pack(side=tk.LEFT, expand=True, fill=tk.X)
+        self.center_frame.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=(12, 0))
+        self.center_frame._tag = "header"
 
         self.title_label = tk.Label(
             self.center_frame,
@@ -75,7 +83,8 @@ class FixedHeaderManager:
             borderwidth=0,
             anchor="center"
         )
-        self.title_label.pack(expand=True, fill=tk.BOTH)
+        self.title_label.place(relx=0.5, rely=0.5, anchor="center")
+        self.title_label._tag = "header"
 
         # RIGHT: Theme toggle + Copyright
         self.right_frame = tk.Frame(self.header_frame, bg=self.BRAND_NAVY)
@@ -147,20 +156,30 @@ class FixedHeaderManager:
         self.theme_toggle_btn._tag = "header"
 
     def add_copyright(self, theme_manager):
-        """Add copyright text to header."""
+        """Build a pinned footer bar (dark navy, never theme-changes) with centered copyright text."""
         copyright_text = theme_manager.get_copyright_text()
 
+        # Footer bar pinned to bottom of the PARENT window — not inside the header frame
+        self.footer_frame = tk.Frame(
+            self.parent,
+            bg=self.BRAND_NAVY,
+            height=24,
+        )
+        self.footer_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.footer_frame.pack_propagate(False)
+        self.footer_frame._tag = "footer"
+
         self.copyright_label = tk.Label(
-            self.right_frame,
+            self.footer_frame,
             text=copyright_text,
-            font=("Segoe UI", 7),
-            fg="white",
+            font=("Segoe UI", 8),
+            fg="#c7cbe0",
             bg=self.BRAND_NAVY,
             highlightthickness=0,
             borderwidth=0
         )
-        self.copyright_label.pack(side=tk.BOTTOM, pady=2)
-        self.copyright_label._tag = "header"
+        self.copyright_label.place(relx=0.5, rely=0.5, anchor="center")
+        self.copyright_label._tag = "footer"
     
     def update_button_text(self):
         """Update toggle button text ONLY - never change header colors."""
