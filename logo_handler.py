@@ -86,13 +86,13 @@ class LogoHandler:
         self.logo_widget = tk.Label(self.parent, **label_kwargs)
         return True
 
-    def pack(self, side=None, padx=10, pady=5):
-        """Pack the logo widget."""
+    def pack(self, side=None, padx=10, pady=5, **kwargs):
+        """Pack the logo widget. Extra kwargs (e.g. anchor) are forwarded."""
         import tkinter as tk  # lazy import
         if side is None:
             side = tk.LEFT
         if self.logo_widget:
-            self.logo_widget.pack(side=side, padx=padx, pady=pady)
+            self.logo_widget.pack(side=side, padx=padx, pady=pady, **kwargs)
             return True
         return False
 
