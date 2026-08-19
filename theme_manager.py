@@ -51,7 +51,7 @@ class ThemeManager:
         }
     }
 
-    _PROTECTED_TAGS = {"header", "header_label", "brand", "logo", "run", "sched", "stop"}
+    _PROTECTED_TAGS = {"header", "header_label", "brand", "logo", "run", "sched", "stop", "footer"}
 
     def __init__(self, default="dark", app_name="GFH"):
         self.app_name = app_name
@@ -145,9 +145,11 @@ class ThemeManager:
                 elif wtype == "Entry":
                     child.configure(bg=colors["input"], fg=colors["text"], insertbackground=colors["text"])
                 elif wtype == "Text":
-                    child.configure(bg=colors["log_bg"], fg=colors["log_fg"], insertbackground=colors["log_fg"])
+                    child.configure(bg=colors.get("panel", colors["bg"]), fg=colors["text"], insertbackground=colors["text"])
                 elif wtype == "Listbox":
                     child.configure(bg=colors["input"], fg=colors["text"])
+                elif wtype == "ScrolledText":
+                    child.configure(bg=colors.get("panel", colors["bg"]), fg=colors["text"], insertbackground=colors["text"])
                 elif wtype == "PanedWindow":
                     child.configure(bg=colors["bg"])
                 elif wtype == "Checkbutton":
