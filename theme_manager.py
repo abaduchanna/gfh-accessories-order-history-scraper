@@ -120,53 +120,81 @@ class ThemeManager:
         import tkinter as tk
 
         for child in widget.winfo_children():
-            # Check _tag attribute (set by FixedHeaderManager and app code)
+            # Skip ALL protected tags — header, footer, logo, etc.
             tag = getattr(child, "_tag", None)
             if tag in self._PROTECTED_TAGS:
                 continue
-            # Also check bindtags for backward compatibility
             tags = set(child.bindtags())
             if tags & self._PROTECTED_TAGS:
                 continue
 
             wtype = child.winfo_class()
+            bg = colors["bg"]
+            panel = colors.get("panel", colors["bg"])
+            panel_alt = colors.get("panel_alt", colors["bg"])
+            text_fg = colors["text"]
+            input_bg = colors.get("input", panel)
+
             try:
-                # tk.Frame, ttk.Frame, tk.Toplevel, tk.Tk
                 if wtype in ("Frame", "Tk", "Toplevel"):
-                    child.configure(bg=colors["bg"])
-                # tk.LabelFrame — winfo_class() returns "Labelframe" (lowercase f).
-                # This was previously missed, causing panels to stay white in dark mode.
+                    child.configure(bg=bg)
                 elif wtype in ("Labelframe", "labelframe"):
-                    child.configure(bg=colors["panel"], fg=colors["text"])
+                    child.configure(bg=panel, fg=text_fg)
                 elif wtype == "Label":
-                    child.configure(bg=colors["bg"], fg=colors["text"])
+                    child.configure(bg=bg, fg=text_fg)
                 elif wtype == "Button":
-                    child.configure(bg=colors["panel_alt"], fg=colors["text"], activebackground=colors["panel"])
+                    child.configure(bg=panel_alt, fg=text_fg,
+                                    activebackground=panel,
+                                    activeforeground=text_fg)
                 elif wtype == "Entry":
-                    child.configure(bg=colors["input"], fg=colors["text"], insertbackground=colors["text"])
+                    child.configure(bg=input_bg, fg=text_fg,
+                                    insertbackground=text_fg,
+                                    disabledbackground=panel_alt)
                 elif wtype == "Text":
-                    child.configure(bg=colors.get("panel", colors["bg"]), fg=colors["text"], insertbackground=colors["text"])
+                    # Also covers ScrolledText (winfo_class returns "Text")
+                    child.configure(bg=panel, fg=text_fg,
+                                    insertbackground=text_fg,
+                                    selectbackground=colors.get("red", "#f0541c"),
+                                    selectforeground="#ffffff")
                 elif wtype == "Listbox":
-                    child.configure(bg=colors["input"], fg=colors["text"])
-                elif wtype == "ScrolledText":
-                    child.configure(bg=colors.get("panel", colors["bg"]), fg=colors["text"], insertbackground=colors["text"])
+                    child.configure(bg=input_bg, fg=text_fg,
+                                    selectbackground=colors.get("red", "#f0541c"),
+                                    selectforeground="#ffffff")
+                elif wtype in ("Canvas", "canvas"):
+                    child.configure(bg=bg, highlightbackground=colors.get("border", bg))
                 elif wtype == "PanedWindow":
-                    child.configure(bg=colors["bg"])
+                    child.configure(bg=bg)
                 elif wtype == "Checkbutton":
-                    child.configure(bg=colors["bg"], fg=colors["text"],
-                                    activebackground=colors["bg"], activeforeground=colors["text"],
-                                    selectcolor=colors["panel"])
+                    child.configure(bg=bg, fg=text_fg,
+                                    activebackground=bg,
+                                    activeforeground=text_fg,
+                                    selectcolor=panel)
                 elif wtype == "Radiobutton":
-                    child.configure(bg=colors["bg"], fg=colors["text"],
-                                    activebackground=colors["bg"], activeforeground=colors["text"],
-                                    selectcolor=colors["panel"])
-                elif wtype == "Combobox":
-                    try:
-                        child.configure(bg=colors["input"], fg=colors["text"])
-                    except tk.TclError:
-                        pass
+                    child.configure(bg=bg, fg=text_fg,
+                                    activebackground=bg,
+                                    activeforeground=text_fg,
+                                    selectcolor=panel)
+                elif wtype == "Scale":
+                    child.configure(bg=bg, fg=text_fg,
+                                    troughcolor=panel_alt,
+                                    activebackground=colors.get("red", "#f0541c"))
+                elif wtype == "Spinbox":
+                    child.configure(bg=input_bg, fg=text_fg,
+                                    insertbackground=text_fg,
+                                    buttonbackground=panel_alt)
+                elif wtype == "OptionMenu":
+                    child.configure(bg=panel_alt, fg=text_fg,
+                                    activebackground=panel,
+                                    activeforeground=text_fg)
+                elif wtype == "Message":
+                    child.configure(bg=bg, fg=text_fg)
+                elif wtype == "Scrollbar":
+                    child.configure(bg=panel_alt, troughcolor=bg,
+                                    activebackground=colors.get("red", "#f0541c"))
             except tk.TclError:
                 pass
+
+            # Recurse into children regardless of whether this widget matched
             self._walk(child, colors)
 
     def create_theme_toggle_button(self, parent, callback=None):
