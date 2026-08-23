@@ -138,8 +138,8 @@ class ThemeManager:
             try:
                 if wtype in ("Frame", "Tk", "Toplevel"):
                     child.configure(bg=bg)
-                elif wtype in ("Labelframe", "labelframe"):
-                    child.configure(bg=panel, fg=text_fg)
+                elif wtype in ("Labelframe", "labelframe", "TLabelframe"):
+                    child.configure(bg=panel)
                 elif wtype == "Label":
                     child.configure(bg=bg, fg=text_fg)
                 elif wtype == "Button":
@@ -151,7 +151,6 @@ class ThemeManager:
                                     insertbackground=text_fg,
                                     disabledbackground=panel_alt)
                 elif wtype == "Text":
-                    # Also covers ScrolledText (winfo_class returns "Text")
                     child.configure(bg=panel, fg=text_fg,
                                     insertbackground=text_fg,
                                     selectbackground=colors.get("red", "#f0541c"),
@@ -194,7 +193,7 @@ class ThemeManager:
             except tk.TclError:
                 pass
 
-            # Recurse into children regardless of whether this widget matched
+            # Always recurse regardless of widget type
             self._walk(child, colors)
 
     def create_theme_toggle_button(self, parent, callback=None):
