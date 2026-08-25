@@ -101,6 +101,14 @@ ICON_ICO_NAME = "gfh_icon.ico"     # used for taskbar + titlebar (Windows .ico)
 WORDMARK_PNG_NAME = "GFH_Telecom_Logo.png"     # used in the header (resized at runtime via PIL)
 ICON_ICO_B64 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "icon_ico_b64.txt"), "r").read().strip() if not getattr(sys, "frozen", False) else open(os.path.join(getattr(sys, "_MEIPASS", "."), "assets", "icon_ico_b64.txt"), "r").read().strip()
 
+# ── Edge automation profile + port ───────────────────────────────────────────
+# Distinct from Extractor (9222), Ordering (9223), Transfer Bot (9224),
+# UPS (9225) so running multiple GFH/VidaPay tools at once each gets its
+# own Edge process/window instead of colliding on a shared profile+port.
+AUTOMATION_PROFILE_DIR = r"C:\GFH_Edge_Automation_Profile_Scraper"
+REMOTE_DEBUGGING_PORT = 9226
+ATTACH_TO_OPEN_EDGE = True
+
 # Configuration (unchanged from the original CLI script)
 LOGIN_URL = "https://www.cpwhwireless.com/login"
 USERNAME = "nofalgodil@gfhtelecom.com"
@@ -223,6 +231,102 @@ def _download_matching_driver(major_version):
         return False
 
 
+# ── Edge automation helpers (profile + port pattern) ─────────────────────────
+
+def get_edge_exe_path():
+    """Find the Edge executable on Windows."""
+    possible_paths = [
+        shutil.which("msedge"),
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+    ]
+    for path in possible_paths:
+        if path and os.path.exists(path):
+            return path
+    return None
+
+
+def is_port_open(host="127.0.0.1", port=REMOTE_DEBUGGING_PORT, timeout=1):
+    """Check if the remote debugging port is open (Edge is running)."""
+    import socket
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+
+def open_vpn_setup_browser(url="about:blank", log=print):
+    """Launch a dedicated Edge process with our profile + port."""
+    edge_path = get_edge_exe_path()
+    if not edge_path:
+        log("Microsoft Edge executable not found.")
+        return False
+
+    os.makedirs(AUTOMATION_PROFILE_DIR, exist_ok=True)
+
+    args = [
+        edge_path,
+        f"--remote-debugging-port={REMOTE_DEBUGGING_PORT}",
+        f"--user-data-dir={AUTOMATION_PROFILE_DIR}",
+        "--profile-directory=Default",
+        "--no-first-run",
+        "--no-default-browser-check",
+        url,
+    ]
+
+    try:
+        subprocess.Popen(args)
+        log("Opened dedicated Edge automation browser.")
+
+        for _ in range(20):
+            if is_port_open():
+                log("Automation Edge remote connection is ready.")
+                return True
+            time.sleep(0.5)
+
+        log("Edge opened, but remote debugging port is not ready yet.")
+        return False
+    except Exception as e:
+        log(f"Failed to open Edge: {e}")
+        return False
+
+
+def create_edge_driver(log=print):
+    """Create a Selenium Edge driver. If ATTACH_TO_OPEN_EDGE is True,
+    attach to an already-running Edge on our debug port (launching it
+    first if needed). Otherwise, create a standalone driver."""
+    if ATTACH_TO_OPEN_EDGE:
+        if not is_port_open():
+            log("Automation Edge is not open.")
+            log("Opening VPN Browser Setup now.")
+            open_vpn_setup_browser(log=log)
+
+        if not is_port_open():
+            raise RuntimeError(
+                "Automation Edge is not available on remote debugging port. "
+                "Click Open VPN Browser Setup first and keep that Edge window open."
+            )
+
+        options = webdriver.EdgeOptions()
+        options.add_experimental_option(
+            "debuggerAddress",
+            f"127.0.0.1:{REMOTE_DEBUGGING_PORT}"
+        )
+
+        driver = webdriver.Edge(options=options)
+        driver.set_page_load_timeout(90)
+        return driver
+
+    # Fallback: standalone driver with our profile
+    options = _build_edge_options()
+    options.add_argument(f"--user-data-dir={AUTOMATION_PROFILE_DIR}")
+    options.add_argument("--profile-directory=Default")
+    driver = webdriver.Edge(options=options)
+    driver.set_page_load_timeout(90)
+    return driver
+
+
 def _build_edge_options():
     edge_options = webdriver.EdgeOptions()
     edge_options.add_argument("--disable-gpu")
@@ -243,16 +347,29 @@ def _build_edge_options():
 # SCRAPER LOGIC (prints redirected to GUI log)
 # ============================================================================
 def setup_driver():
+    """Set up Edge driver using the dedicated profile + port pattern.
+    Attaches to an already-running Edge on our debug port (launching it
+    first if needed). Falls back to standalone driver if that fails."""
     print("Setting up Microsoft Edge driver...")
     os.makedirs(download_dir, exist_ok=True)
 
+    try:
+        driver = create_edge_driver(log=print)
+        try:
+            driver.maximize_window()
+        except Exception:
+            pass  # can't maximize when attached to existing Edge
+        print("  Edge driver initialized via attach-to-open pattern.")
+        return driver
+    except Exception as e:
+        print(f"  Attach-to-open Edge failed: {e}")
+        print("  Falling back to standalone driver...")
+
+    # Fallback: standalone driver with auto-download
     edge_version = _get_installed_edge_version()
     if edge_version:
         print(f"  Installed Edge version: {edge_version}")
-    else:
-        print("  [WARN] Could not detect installed Edge version; will rely on Selenium Manager.")
 
-    # ---- Strategy 1: Selenium Manager (auto-downloads the matching driver) ----
     try:
         print("  Trying Selenium Manager (auto-download)...")
         driver = webdriver.Edge(options=_build_edge_options())
@@ -261,47 +378,7 @@ def setup_driver():
         return driver
     except Exception as e:
         print(f"  Selenium Manager failed: {e}")
-        print("  Falling back to local cached driver with version check...")
-
-    # ---- Strategy 2: cached driver in Downloads (verify version match) --------
-    cached_version = _get_cached_driver_version()
-    if cached_version:
-        print(f"  Cached driver version: {cached_version}")
-
-    edge_major = edge_version.split(".")[0] if edge_version else None
-    cached_major = cached_version.split(".")[0] if cached_version else None
-
-    if edge_major and cached_major and edge_major == cached_major:
-        print("  Cached driver matches installed Edge — using it.")
-    else:
-        if edge_major:
-            print(f"  Cached driver major version ({cached_major}) != Edge major version ({edge_major}).")
-        print("  Downloading matching driver...")
-        if not _download_matching_driver(edge_major):
-            print("\n  [ERROR] Could not obtain a matching Microsoft Edge WebDriver.")
-            print("  Please download manually from https://developer.microsoft.com/microsoft-edge/tools/webdriver/")
-            print(f"  and place msedgedriver.exe at: {driver_path}")
-            return None
-
-    if os.path.exists(zip_path) and not os.path.exists(driver_path):
-        print("  Extracting cached zip...")
-        try:
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(downloads_folder)
-            print("  Extraction complete.")
-        except Exception as e:
-            print(f"  [ERROR] Extraction failed: {e}")
-            return None
-
-    if not os.path.exists(driver_path):
-        print(f"\n  [ERROR] Driver not found at {driver_path}")
         return None
-
-    service = Service(driver_path)
-    driver = webdriver.Edge(service=service, options=_build_edge_options())
-    driver.maximize_window()
-    print("  Edge driver initialized successfully (local cache).")
-    return driver
 
 
 def login(driver, manual_login_confirm):
@@ -1269,6 +1346,9 @@ class ScraperApp:
         self.stop_btn = ttk.Button(btn_row, text="⏹  Stop", style="D.TButton",
                                     command=self._stop, state="disabled")
         self.stop_btn.pack(side="left", padx=8)
+        self.vpn_btn = ttk.Button(btn_row, text="🌐 Open Edge Browser", style="A.TButton",
+                                   command=self._open_edge_browser)
+        self.vpn_btn.pack(side="left", padx=8)
 
     def _on_date_range_change(self):
         """Enable the From/To entry fields only when 'Custom Range' is selected."""
@@ -1341,6 +1421,21 @@ class ScraperApp:
         return self._stop_flag
 
     # ---- actions -------------------------------------------------------------
+    def _open_edge_browser(self):
+        """Open the dedicated Edge automation browser with our profile+port."""
+        if is_port_open():
+            messagebox.showinfo("Edge Already Open",
+                                "The automation Edge browser is already running.\n"
+                                "You can click Start Scrape now.")
+            return
+        self._log("Opening dedicated Edge automation browser...")
+        if open_vpn_setup_browser(log=self._log):
+            self._log("Edge is ready. Click Start Scrape to begin.")
+        else:
+            messagebox.showwarning("Edge Failed",
+                                   "Could not open the automation Edge browser.\n"
+                                   "Make sure Microsoft Edge is installed.")
+
     def _start(self):
         if self._busy:
             return
