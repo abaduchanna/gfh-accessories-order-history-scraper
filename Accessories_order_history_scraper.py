@@ -1145,7 +1145,10 @@ class ScraperApp:
 
 
     def _set_window_icon(self, root):
-        """Set taskbar + titlebar icon from embedded base64 ICO."""
+        """Set taskbar + titlebar icon from embedded base64 ICO.
+        Uses iconbitmap(default=...) — the 'default=' keyword is what
+        makes Windows apply the icon to BOTH the titlebar AND the taskbar
+        button. Without it, only the titlebar updates."""
         import base64, tempfile, atexit, os, sys
 
         # 1. Try sys._MEIPASS
@@ -1154,8 +1157,8 @@ class ScraperApp:
             ico_path = os.path.join(meipass, "gfh_icon.ico")
             if os.path.exists(ico_path):
                 try:
-                    root.iconbitmap(ico_path)
-                    root.iconbitmap(ico_path)
+                    root.iconbitmap(default=ico_path)
+                    root.after(200, lambda p=ico_path: root.iconbitmap(default=p))
                     return
                 except Exception:
                     pass
@@ -1168,8 +1171,8 @@ class ScraperApp:
         ico_path = os.path.join(base_dir, "gfh_icon.ico")
         if os.path.exists(ico_path):
             try:
-                root.iconbitmap(ico_path)
-                root.iconbitmap(ico_path)
+                root.iconbitmap(default=ico_path)
+                root.after(200, lambda p=ico_path: root.iconbitmap(default=p))
                 return
             except Exception:
                 pass
@@ -1181,8 +1184,8 @@ class ScraperApp:
             ico_path = os.path.join(tmp_dir, "gfh_app_icon.ico")
             with open(ico_path, "wb") as f:
                 f.write(data)
-            root.iconbitmap(ico_path)
-            root.iconbitmap(ico_path)
+            root.iconbitmap(default=ico_path)
+            root.after(200, lambda p=ico_path: root.iconbitmap(default=p))
             return
         except Exception:
             pass
@@ -1194,8 +1197,8 @@ class ScraperApp:
             tmp.write(data)
             tmp.close()
             atexit.register(lambda p=tmp.name: os.path.exists(p) and os.unlink(p))
-            root.iconbitmap(tmp.name)
-            root.iconbitmap(tmp.name)
+            root.iconbitmap(default=tmp.name)
+            root.after(200, lambda p=tmp.name: root.iconbitmap(default=p))
             return
         except Exception:
             pass
@@ -1203,8 +1206,8 @@ class ScraperApp:
         ico_path2 = os.path.join(icon_dir, ICON_ICO_NAME)
         try:
             if os.path.exists(ico_path2):
-                root.iconbitmap(ico_path2)
-                root.iconbitmap(ico_path2)
+                root.iconbitmap(default=ico_path2)
+                root.after(200, lambda p=ico_path2: root.iconbitmap(default=p))
         except Exception:
             pass
 
