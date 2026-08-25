@@ -86,10 +86,17 @@ echo  Step 3: Building .exe files from .spec files...
 set BUILD_COUNT=0
 set FAIL_COUNT=0
 
+REM ── Redirect PyInstaller workpath to system TEMP ──
+REM   Avoids FileNotFoundError: base_library.zip when OneDrive
+REM   syncs or AV scans the build folder mid-build.
+set "WORKBASE=%TEMP%\pyi_build\gfh-accessories-order-history-scraper"
+if exist "%WORKBASE%" rmdir /s /q "%WORKBASE%"
+mkdir "%WORKBASE%" 2>nul
+
 for %%S in (*.spec) do (
     echo.
     echo    Building: %%S
-    python -m PyInstaller "%%S" --noconfirm --clean 2>&1
+    python -m PyInstaller "%%S" --noconfirm --clean --workpath "%WORKBASE%" 2>&1
     if errorlevel 1 (
         echo    FAILED: %%S
         set /a FAIL_COUNT+=1
