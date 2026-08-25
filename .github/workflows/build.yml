@@ -1,0 +1,106 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - Accessories_order_history_scraper
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller selenium
+
+      - name: Build EXE from .spec
+        shell: bash
+        run: |
+          python -m PyInstaller "${{ matrix.app }}.spec" --noconfirm --clean
+          if [ ! -f "dist/${{ matrix.app }}.exe" ]; then
+            echo "::error::Build failed - dist/${{ matrix.app }}.exe not found"
+            exit 1
+          fi
+          ls -la dist/
+
+
+      # Code signing (sigstore)
+      - name: Install sigstore
+        run: python -m pip install sigstore
+
+      - name: Sign EXE files with sigstore
+        shell: bash
+        run: |
+          cd dist
+          for exe in *.exe; do
+            if [ -f "$exe" ]; then
+              echo "Signing $exe..."
+              python -m sigstore sign "$exe" || echo "WARNING: sigstore failed"
+            fi
+          done
+        continue-on-error: true
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exe-${{ matrix.app }}
+          path: dist/${{ matrix.app }}.exe
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all EXEs
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List downloaded EXEs
+        id: list_artifacts
+        run: |
+          ls -la dist/
+          {
+            echo "files<<EOF"
+            for f in dist/*.exe; do
+              echo "- $(basename "$f")"
+            done
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create release with build number
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Accessories Order History Scraper Build ${{ github.run_number }}
+          body: |
+            Automated build #${{ github.run_number }}
+            Commit: ${{ github.sha }}
+
+            Built from commit ${{ github.sha }}.
+
+            Artifacts:
+            ${{ steps.list_artifacts.outputs.files }}
+          files: dist/*.exe
+          make_latest: true
