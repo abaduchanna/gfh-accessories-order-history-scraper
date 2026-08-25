@@ -75,9 +75,9 @@ class FixedHeaderManager:
         self.theme_toggle_btn = None
         self.copyright_label = None
 
-        # CENTER: Title — placed DIRECTLY on header_frame with relx=0.5 so
-        # it is truly centered relative to the ENTIRE header width, regardless
-        # of how wide the logo on the left is.
+        # CENTER: Title — spans the ENTIRE header (relwidth=1.0, relheight=1.0)
+        # so anchor="center" centers text both H and V within the full header.
+        # lower() puts it behind logo/divider/theme button so they stay visible.
         self.title_label = tk.Label(
             self.header_frame,
             text=title,
@@ -88,7 +88,8 @@ class FixedHeaderManager:
             borderwidth=0,
             anchor="center"
         )
-        self.title_label.place(relx=0.5, rely=0.5, anchor="center")
+        self.title_label.place(relx=0.0, rely=0.0, relwidth=1.0, relheight=1.0)
+        self.title_label.lower()
 
         # Tag ALL header widgets
         self.header_frame._tag = "header"

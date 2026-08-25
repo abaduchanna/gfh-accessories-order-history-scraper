@@ -1027,7 +1027,7 @@ class ScraperApp:
         # center it (DPI-aware), then stay a normal resizable top-level so
         # Windows Snap (50% left/right, corners, Win+arrow) keeps working.
         self._apply_dynamic_geometry()
-        self.after(10, lambda: self.state("zoomed"))
+        self.root.after(10, lambda: self.root.state("zoomed"))
         root.configure(bg=COLOR_BG)
         self._set_window_icon(root)
 
