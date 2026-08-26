@@ -4,14 +4,14 @@ _year = _dt.date.today().year
 
 SPEC_DOC = f"""PyInstaller spec
 Developed by Abad Umair Channa \u00a9 {_year}
-Build command: pyinstaller Accessories_order_history_scraper.spec
+Build command: pyinstaller gfh_accessories_order_history_scraper.spec
 """
 
 
 block_cipher = None
 
 a = Analysis(
-    ['Accessories_order_history_scraper.py'],
+    ['gfh_accessories_order_history_scraper.py'],
     pathex=['.'],
     binaries=[],
     datas=[
