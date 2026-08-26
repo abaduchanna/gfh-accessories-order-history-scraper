@@ -108,7 +108,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Accessories_order_history_scraper',
+    name='gfh_accessories_order_history_scraper',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
