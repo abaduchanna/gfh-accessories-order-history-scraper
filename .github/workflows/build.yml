@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         app:
-          - Accessories_order_history_scraper
+          - gfh_accessories_order_history_scraper
 
     steps:
       - name: Checkout
@@ -93,7 +93,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Accessories Order History Scraper Build ${{ github.run_number }}
+          name: GFH Accessories Order History Scraper Build ${{ github.run_number }}
           body: |
             Automated build #${{ github.run_number }}
             Commit: ${{ github.sha }}
