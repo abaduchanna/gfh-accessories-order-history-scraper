@@ -95,7 +95,7 @@ COLOR_WHITE = "#ffffff"
 COLOR_TEXT = "#1c1c1c"
 COLOR_LOG_BG = "#0d0d1f"
 COLOR_LOG_TEXT = "#d7e3f0"
-COPYRIGHT_TEXT = f"Developed by Abad Umair Channa | Copyright © {date.today().year} | All rights reserved."
+COPYRIGHT_TEXT = f"Developed by www.3SVerse.com | Copyright © {date.today().year} | All rights reserved."
 
 ICON_ICO_NAME = "gfh_icon.ico"     # used for taskbar + titlebar (Windows .ico)
 WORDMARK_PNG_NAME = "GFH_Telecom_Logo.png"     # used in the header (resized at runtime via PIL)

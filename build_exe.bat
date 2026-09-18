@@ -1,7 +1,7 @@
 @echo off
 REM ==========================================================================
 REM  GFH/VidaPay Bot — Force Clean EXE Build
-REM  Developed by Abad Umair Channa
+REM  Developed by www.3SVerse.com
 REM
 REM  This script:
 REM    1. Cleans previous build artifacts (build/, dist/, *.spec.tmp)

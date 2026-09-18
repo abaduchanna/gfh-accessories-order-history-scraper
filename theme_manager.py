@@ -1,6 +1,6 @@
 """
 Theme Manager - Standardized for GFH/VidaPay Ecosystem
-Developed by Abad Umair Channa | Copyright © {year} | All rights reserved.
+Developed by www.3SVerse.com | Copyright © {year} | All rights reserved.
 """
 import os
 
@@ -226,7 +226,7 @@ class ThemeManager:
 
     @staticmethod
     def get_copyright_text():
-        return f"Developed by Abad Umair Channa | Copyright © {datetime.now().year} | All rights reserved."
+        return f"Developed by www.3SVerse.com | Copyright © {datetime.now().year} | All rights reserved."
 
 
 def apply_theme_to_window(window, theme_manager=None):

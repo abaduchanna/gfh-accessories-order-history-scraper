@@ -1,6 +1,6 @@
 """
 Logo Handler - Theme-Safe Transparent Logo Display
-Developed by Abad Umair Channa
+Developed by www.3SVerse.com
 """
 _LOGO_HANDLER_VERSION = "2.1.0"
 

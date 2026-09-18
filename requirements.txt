@@ -1,5 +1,5 @@
 # Scraper: Selenium + Excel + web requests
-# Developed by Abad Umair Channa
+# Developed by www.3SVerse.com
 
 selenium>=4.0.0
 openpyxl>=3.1.0

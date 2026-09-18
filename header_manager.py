@@ -1,7 +1,7 @@
 """
 Fixed Header Manager - Proper Theme Support
 Header stays navy blue - doesn't change on theme toggle
-Developed by Abad Umair Channa
+Developed by www.3SVerse.com
 """
 import os
 

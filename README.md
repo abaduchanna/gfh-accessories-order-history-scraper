@@ -1,6 +1,9 @@
-# gfh-accessories-order-history-scraper
+# Accessories Order History Scraper
 
-Standalone GFH Telecom Tkinter tool: `gfh_accessories_order_history_scraper.pyw`.
-Builds a Windows EXE automatically via GitHub Actions on every push to `main`
-(uploaded directly to the repo's Releases page — no Actions storage used),
-and via CircleCI once the repo is connected at circleci.com.
+Logs into the **CPWH Wireless** portal, scans the accessories order history
+(inline row scan with a date-range filter), and exports everything to a
+formatted Excel workbook. Edge/Selenium driven with a manual-login confirm
+step.
+
+## Build
+Windows EXE built via GitHub Actions on push.
