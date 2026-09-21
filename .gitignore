@@ -10,3 +10,6 @@ Thumbs.db
 *.tmp
 .vscode/
 .idea/
+_protect_done.json
+vxrun*.py
+*.pyd
