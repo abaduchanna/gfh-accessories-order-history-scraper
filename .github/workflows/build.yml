@@ -36,7 +36,7 @@ jobs:
       - name: Protect application sources (compile to native extensions)
         shell: bash
         run: |
-          python -m pip install cython
+          python -m pip install cython pyflakes
           python _protect_build.py
       - name: Build EXE from .spec
         shell: bash

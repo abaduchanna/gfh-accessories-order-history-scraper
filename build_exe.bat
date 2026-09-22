@@ -45,7 +45,7 @@ if errorlevel 1 (
 REM -- Protect sources: compile every local module to native extensions -------
 REM  (no Python source and no decompilable bytecode ships inside the EXE)
 echo    Protecting sources (compiling to native extensions)...
-python -m pip install --quiet cython 2>nul
+python -m pip install --quiet cython pyflakes 2>nul
 python _protect_build.py
 if errorlevel 1 (
     echo    FAILED: source protection (_protect_build.py)
