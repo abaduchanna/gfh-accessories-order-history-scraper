@@ -113,12 +113,15 @@ def inject_undefined_names(path):
         tree = ast.parse(text)
         lines = text.split("\n")
 
-        # module docstring end
+        # module docstring end, but never before the last __future__ import
         first = tree.body[0] if tree.body else None
         top_insert = 0
         if first and isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) \
                 and isinstance(first.value.value, str):
             top_insert = first.end_lineno
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module == "__future__":
+                top_insert = max(top_insert, node.end_lineno)
 
         fns = _enclosing_function_spans(tree)
         module_imports, module_nones = [], []
@@ -369,7 +372,9 @@ def main():
     # ---- compute spec rewrites (validated in both modes) ---------------
     add_hidden = sorted(third_party) + sorted(compiled.values())
     spec_patches = {}
-    names_to_unship = {rel.with_suffix("").name for rel in compiled} | set(entries)
+    # no Python source ships in any EXE: drop datas lines for every root .py
+    names_to_unship = {p.with_suffix("").name for p in ROOT.glob("*.py")} \
+        | {rel.with_suffix("").name for rel in compiled} | set(entries)
     for spec in specs:
         text = spec.read_text(encoding="utf-8")
         original = text
@@ -410,7 +415,7 @@ def main():
 
     # ---- write launcher stubs ------------------------------------------
     for e, launcher in entry_plan.items():
-        mod = ".".join((ROOT / e).with_suffix("").parts)
+        mod = Path(e).stem  # entries are discovered from the repo root
         (ROOT / launcher).write_text(LAUNCHER_TMPL.format(module=mod), encoding="utf-8")
         log(f"launcher {launcher} -> import {mod}")
 
