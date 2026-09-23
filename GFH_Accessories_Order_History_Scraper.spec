@@ -4,14 +4,14 @@ _year = _dt.date.today().year
 
 SPEC_DOC = f"""PyInstaller spec
 Developed by www.3SVerse.com \u00a9 {_year}
-Build command: pyinstaller gfh_accessories_order_history_scraper.spec
+Build command: pyinstaller GFH_Accessories_Order_History_Scraper.spec
 """
 
 
 block_cipher = None
 
 a = Analysis(
-    ['gfh_accessories_order_history_scraper.py'],
+    ['GFH_Accessories_Order_History_Scraper.py'],
     pathex=['.'],
     binaries=[],
     datas=[
@@ -108,7 +108,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='gfh_accessories_order_history_scraper',
+    name='GFH_Accessories_Order_History_Scraper',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

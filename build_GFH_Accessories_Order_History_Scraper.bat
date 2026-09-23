@@ -17,7 +17,7 @@ REM       - All button colors (run=red, sched=navy, stop=grey, save=navy)
 REM
 REM  USAGE:
 REM    1. Save this file in the repo root (next to the .spec files)
-REM    2. Double-click build_exe.bat, OR run from Command Prompt
+REM    2. Double-click build_GFH_Accessories_Order_History_Scraper.bat, OR run from Command Prompt
 REM    3. The .exe files will appear in the dist\ folder
 REM
 REM  PREREQUISITES:
@@ -100,7 +100,7 @@ set FAIL_COUNT=0
 REM ── Redirect PyInstaller workpath to system TEMP ──
 REM   Avoids FileNotFoundError: base_library.zip when OneDrive
 REM   syncs or AV scans the build folder mid-build.
-set "WORKBASE=%TEMP%\pyi_build\gfh-accessories-order-history-scraper"
+set "WORKBASE=%TEMP%\pyi_build\GFH-Accessories-Order-History-Scraper"
 if exist "%WORKBASE%" rmdir /s /q "%WORKBASE%"
 mkdir "%WORKBASE%" 2>nul
 

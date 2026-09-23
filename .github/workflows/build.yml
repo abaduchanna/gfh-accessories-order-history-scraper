@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         app:
-          - gfh_accessories_order_history_scraper
+          - GFH_Accessories_Order_History_Scraper
 
     steps:
       - name: Checkout
